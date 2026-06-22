@@ -2,6 +2,12 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const { timeAgo, formatCurrency } = require('../utils/site');
+const path = require('path');
+
+// Google site verification
+router.get('/google5bb999e23aa5eb92.html', (req, res) => {
+    res.send('google-site-verification: google5bb999e23aa5eb92.html');
+});
 
 // Home page
 router.get('/', async (req, res) => {
