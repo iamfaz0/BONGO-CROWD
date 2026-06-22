@@ -144,15 +144,47 @@ app.use((req, res) => {
 
 // Load site settings before starting server
 const { loadSiteSettings } = require('./utils/site');
+const https = require('https');
+const http = require('http');
+const fs = require('fs');
 
 async function startServer() {
     await loadSiteSettings(app);
     
-    app.listen(PORT, '0.0.0.0', () => {
-        console.log(`🚀 BONGO-CROWD server running on port ${PORT}`);
-        console.log(`🌐 Visit: http://localhost:${PORT}`);
-        console.log(`🔗 External: http://0.0.0.0:${PORT}`);
-    });
+    // Try to use HTTPS if certificates exist
+    const certPath = '/etc/letsencrypt/live/cyberhubtz.site/fullchain.pem';
+    const keyPath = '/etc/letsencrypt/live/cyberhubtz.site/privkey.pem';
+    
+    if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+        const credentials = {
+            cert: fs.readFileSync(certPath, 'utf8'),
+            key: fs.readFileSync(keyPath, 'utf8')
+        };
+        
+        https.createServer(credentials, app).listen(443, () => {
+            console.log('🔒 HTTPS Server running on port 443');
+            console.log('🌐 Visit: https://cyberhubtz.site');
+        });
+        
+        // HTTP to HTTPS redirect
+        http.createServer((req, res) => {
+            res.writeHead(301, { 'Location': 'https://' + req.headers.host + req.url });
+            res.end();
+        }).listen(80, () => {
+            console.log('🔄 HTTP redirect running on port 80');
+        });
+        
+        // Also run on 3000 for development
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`🚀 BONGO-CROWD also on port ${PORT}`);
+        });
+    } else {
+        // HTTP only
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`🚀 BONGO-CROWD server running on port ${PORT}`);
+            console.log(`🌐 Visit: http://localhost:${PORT}`);
+        });
+    }
 }
 
 startServer().catch(console.error);
