@@ -864,7 +864,7 @@ router.get('/reports/:id', ensureAuthenticated, ensureAdmin, async (req, res) =>
                    reviewer.username as reviewer_name
             FROM reports r
             LEFT JOIN programs p ON r.program_id = p.id
-            LEFT JOIN users u ON r.reporter_id = u.id
+            LEFT JOIN users u ON r.user_id = u.id
             LEFT JOIN users reviewer ON r.reviewed_by = reviewer.id
             WHERE r.id = $1
         `, [req.params.id]);
@@ -921,7 +921,7 @@ router.post('/reports/:id/award', ensureAuthenticated, ensureAdmin, async (req, 
         const reportResult = await db.query(`
             SELECT r.*, u.id as user_id, u.email 
             FROM reports r
-            JOIN users u ON r.reporter_id = u.id
+            JOIN users u ON r.user_id = u.id
             WHERE r.id = $1
         `, [req.params.id]);
         
@@ -990,7 +990,7 @@ router.post('/reports/:id/reject', ensureAuthenticated, ensureAdmin, async (req,
         const reportResult = await db.query(`
             SELECT r.title, u.id as user_id 
             FROM reports r
-            JOIN users u ON r.reporter_id = u.id
+            JOIN users u ON r.user_id = u.id
             WHERE r.id = $1
         `, [req.params.id]);
         
