@@ -10,7 +10,7 @@ const {
 } = require('../config/payments/mpesa');
 
 // Payment page
-router.get('/payments', ensureAuthenticated, async (req, res) => {
+router.get('/', ensureAuthenticated, async (req, res) => {
     try {
         // Get user's payment history
         const paymentsResult = await db.query(`
