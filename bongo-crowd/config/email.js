@@ -8,16 +8,20 @@ const createTransporter = () => {
         const config = {
             host: process.env.SMTP_HOST,
             port: parseInt(process.env.SMTP_PORT) || 587,
-            secure: false, // Use TLS on port 587
+            secure: parseInt(process.env.SMTP_PORT) === 465, // True for 465, false for 587
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS
             },
             tls: {
-                rejectUnauthorized: false
+                rejectUnauthorized: false,
+                minVersion: 'TLSv1.2'
             },
-            debug: true,
-            logger: true
+            debug: process.env.NODE_ENV !== 'production',
+            logger: process.env.NODE_ENV !== 'production',
+            connectionTimeout: 10000,
+            greetingTimeout: 10000,
+            socketTimeout: 10000
         };
         
         console.log('📧 Email config:', { host: config.host, port: config.port, user: config.auth.user });
