@@ -1,0 +1,158 @@
+<!-- Hero Section - HackenProof Style -->
+<section class="hero">
+    <div class="container">
+        <h1 class="hero-title">Secure Tanzania's<br>Digital Future</h1>
+        <p class="hero-subtitle">Join Tanzania's premier bug bounty platform. Connect with companies, find vulnerabilities, get rewarded.</p>
+        
+        <div class="hero-cta">
+            <a href="/programs" class="btn btn-primary btn-lg"><i class="fas fa-rocket"></i> Browse Programs</a>
+            <a href="/auth/register" class="btn btn-secondary btn-lg"><i class="fas fa-user-shield"></i> Become a Researcher</a>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="section" style="padding-top: 0;">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value"><%= stats?.active_programs || 0 %></div>
+                <div class="stat-label">Active Programs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><%= stats?.hackers || 0 %>+</div>
+                <div class="stat-label">Security Researchers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><%= stats?.resolved_reports || 0 %></div>
+                <div class="stat-label">Vulnerabilities Fixed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><%= formatCurrency?.(stats?.total_paid || 0) %></div>
+                <div class="stat-label">Paid in Bounties</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Programs -->
+<section class="section">
+    <div class="container">
+        <div class="section-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2xl);">
+            <div>
+                <h2 class="section-title">Featured Programs</h2>
+                <p class="section-subtitle">Explore active bug bounty programs and start hunting</p>
+            </div>
+            <a href="/programs" class="btn btn-ghost">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="grid grid-3" style="grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));">
+            <% programs?.forEach(program => { %>
+                <div class="program-card">
+                    <div class="program-header">
+                        <img src="<%= program.company_logo || '/images/default-company.png' %>" alt="" class="program-logo">
+                        <div class="program-info">
+                            <h3><a href="/programs/<%= program.slug %>"><%= program.name %></a></h3>
+                            <p><%= program.company_name %></p>
+                        </div>
+                    </div>
+                    
+                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: var(--space-lg); line-height: 1.6;">
+                        <%= program.short_description || program.description?.substring(0, 120) + '...' %>
+                    </p>
+                    
+                    <div class="program-stats">
+                        <div class="program-stat">
+                            <div class="program-stat-value" style="background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700;"><%= formatCurrency(program.min_reward || 0) %>-<%= formatCurrency(program.max_reward || 0) %></div>
+                            <div class="program-stat-label">Rewards</div>
+                        </div>
+                        <div class="program-stat">
+                            <div class="program-stat-value"><%= program.total_reports || 0 %></div>
+                            <div class="program-stat-label">Reports</div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="section" style="background: var(--bg-secondary); position: relative;">
+    <div class="container">
+        <h2 class="section-title text-center">How It Works</h2>
+        <p class="section-subtitle text-center">Start your bug hunting journey in 4 simple steps</p>
+        
+        <div class="grid grid-4" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: var(--space-2xl);">
+            <div class="card text-center">
+                <div style="font-size: 3rem; font-weight: 900; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: var(--space-md);">01</div>
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: var(--space-sm);">Sign Up</h3>
+                <p style="color: var(--text-muted); font-size: 0.9375rem;">Create your researcher profile and verify your identity to get started.</p>
+            </div>
+            
+            <div class="card text-center">
+                <div style="font-size: 3rem; font-weight: 900; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: var(--space-md);">02</div>
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: var(--space-sm);">Find Programs</h3>
+                <p style="color: var(--text-muted); font-size: 0.9375rem;">Browse active bug bounty programs and review their scope and rules.</p>
+            </div>
+            
+            <div class="card text-center">
+                <div style="font-size: 3rem; font-weight: 900; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: var(--space-md);">03</div>
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: var(--space-sm);">Submit Reports</h3>
+                <p style="color: var(--text-muted); font-size: 0.9375rem;">Test within scope and submit detailed vulnerability reports.</p>
+            </div>
+            
+            <div class="card text-center">
+                <div style="font-size: 3rem; font-weight: 900; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: var(--space-md);">04</div>
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: var(--space-sm);">Get Rewarded</h3>
+                <p style="color: var(--text-muted); font-size: 0.9375rem;">Receive bounties for valid findings and climb the leaderboard.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Top Hackers -->
+<section class="section">
+    <div class="container">
+        <div class="section-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2xl);">
+            <div>
+                <h2 class="section-title">Top Researchers</h2>
+                <p class="section-subtitle">Meet our elite security researchers</p>
+            </div>
+            <a href="/leaderboard" class="btn btn-ghost">View Leaderboard <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <% hackers?.slice(0, 10).forEach((hacker, index) => { %>
+                <div class="leaderboard-row" style="border-bottom: 1px solid var(--border-color); margin-bottom: 0; border-radius: 0;">
+                    <div class="leaderboard-rank <%= index < 3 ? 'rank-' + (index + 1) : 'rank-other' %>">
+                        <%= index + 1 %>
+                    </div>
+                    
+                    <div class="leaderboard-user">
+                        <img src="<%= hacker.avatar_url || '/images/default-avatar.png' %>" alt="" class="leaderboard-avatar">
+                        <div>
+                            <div class="leaderboard-name">@<%= hacker.username %></div>
+                            <div class="leaderboard-rep"><%= hacker.points?.toLocaleString() || 0 %> reputation</div>
+                        </div>
+                    </div>
+                    
+                    <div class="leaderboard-bounty"><%= formatCurrency(hacker.total_earnings || 0) %></div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section">
+    <div class="container">
+        <div class="card text-center" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%); border-color: var(--glass-border);">
+            <h2 style="font-size: 2.5rem; font-weight: 800; margin-bottom: var(--space-md); background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Ready to start hunting?</h2>
+            
+            <p style="color: var(--text-secondary); font-size: 1.125rem; max-width: 600px; margin: 0 auto var(--space-xl);">Join thousands of security researchers making the web safer, one bug at a time.</p>
+            
+            <a href="/auth/register" class="btn btn-primary btn-lg" style="animation: pulse-glow 2s ease-in-out infinite;"><i class="fas fa-user-plus"></i> Create Free Account</a>
+        </div>
+    </div>
+</section>

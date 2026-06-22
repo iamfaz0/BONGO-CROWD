@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | BONGO-CROWD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .admin-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .btn-create {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .programs-table {
+            width: 100%;
+            background: rgba(21, 21, 32, 0.8);
+            border: 1px solid rgba(124, 58, 237, 0.15);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .programs-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .programs-table th {
+            background: rgba(124, 58, 237, 0.1);
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            color: #e4e4e7;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.15);
+        }
+        
+        .programs-table td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+            color: #a1a1aa;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .status-active { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .status-draft { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .status-paused { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        
+        .bounty-range {
+            font-family: 'JetBrains Mono', monospace;
+            color: #7c3aed;
+            font-weight: 500;
+        }
+        
+        .btn-action {
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            text-decoration: none;
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            color: #7c3aed;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <nav style="background: rgba(21, 21, 32, 0.95); border-bottom: 1px solid rgba(124, 58, 237, 0.2); padding: 1rem 2rem;">
+        <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+            <a href="/" style="font-size: 1.5rem; font-weight: 800; text-decoration: none;">
+                <span style="color: #7c3aed;">◈</span>
+                <span style="background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">BONGO-CROWD</span>
+            </a>
+            <div style="display: flex; gap: 2rem;">
+                <a href="/admin/dashboard" style="color: #a1a1aa; text-decoration: none;">Dashboard</a>
+                <a href="/admin/companies" style="color: #a1a1aa; text-decoration: none;">Companies</a>
+                <a href="/admin/programs" style="color: #7c3aed; text-decoration: none; font-weight: 600;">Programs</a>
+                <a href="/admin/users" style="color: #a1a1aa; text-decoration: none;">Users</a>
+                <a href="/auth/logout" style="color: #ef4444; text-decoration: none;">Logout</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="admin-container">
+        <% if (success.length > 0) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        
+        <% if (error.length > 0) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+        
+        <div class="admin-header">
+            <h1 class="admin-title">Manage Programs</h1>
+            <a href="/admin/programs/new" class="btn-create">
+                <i class="fas fa-plus"></i> Create Program
+            </a>
+        </div>
+        
+        <% if (programs.length > 0) { %>
+            <div class="programs-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Program</th>
+                            <th>Company</th>
+                            <th>Status</th>
+                            <th>Bounty Range</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% programs.forEach(program => { %>
+                            <tr>
+                                <td><strong><%= program.name %></strong></td>
+                                <td><%= program.company_name %></td>
+                                <td>
+                                    <span class="status-badge status-<%= program.status %>">
+                                        <%= program.status %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="bounty-range">
+                                        $<%= (program.min_reward || 0).toLocaleString() %> - $<%= (program.max_reward || 0).toLocaleString() %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="/admin/programs/<%= program.id %>/edit" class="btn-action">Edit</a>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <div class="programs-table">
+                <div class="empty-state">
+                    <i class="fas fa-bullseye"></i>
+                    <h3>No Programs Yet</h3>
+                    <p>Create your first bug bounty program.</p>
+                    <a href="/admin/programs/new" class="btn-create">Create Program</a>
+                </div>
+            </div>
+        <% } %>
+    </div>
+    
+    
+</body>
+</html>

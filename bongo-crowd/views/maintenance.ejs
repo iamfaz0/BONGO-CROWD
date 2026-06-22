@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance | <%= site.site_name || 'BONGO-CROWD' %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a5f7a 0%, #159895 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        
+        .maintenance-container {
+            text-align: center;
+            color: white;
+            max-width: 600px;
+        }
+        
+        .maintenance-icon {
+            font-size: 6rem;
+            margin-bottom: 24px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        
+        p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .maintenance-footer {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .maintenance-footer a {
+            color: white;
+            text-decoration: underline;
+            opacity: 0.8;
+        }
+        
+        .maintenance-footer a:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="maintenance-container">
+        <div class="maintenance-icon">🔧</div>
+        <h1>Under Maintenance</h1>
+        <p><%= message || 'We are currently performing scheduled maintenance. Please check back later.' %></p>
+        
+        <div class="maintenance-footer">
+            <p><a href="/auth/login">Admin Login</a></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,376 @@
+/**
+ * BONGO-CROWD Badge and Reputation System Styles
+ * HackenProof dark theme compatible
+ */
+
+/* ============================================
+   BADGE COLORS & RARITY STYLES
+   ============================================ */
+
+/* Rarity Backgrounds */
+.rarity-common {
+    --badge-bg: rgba(148, 163, 184, 0.15);
+    --badge-border: rgba(148, 163, 184, 0.3);
+    --badge-text: #94a3b8;
+    --badge-glow: rgba(148, 163, 184, 0.1);
+}
+
+.rarity-rare {
+    --badge-bg: rgba(59, 130, 246, 0.15);
+    --badge-border: rgba(59, 130, 246, 0.3);
+    --badge-text: #60a5fa;
+    --badge-glow: rgba(59, 130, 246, 0.2);
+}
+
+.rarity-epic {
+    --badge-bg: rgba(139, 92, 246, 0.15);
+    --badge-border: rgba(139, 92, 246, 0.3);
+    --badge-text: #a78bfa;
+    --badge-glow: rgba(139, 92, 246, 0.3);
+}
+
+.rarity-legendary {
+    --badge-bg: rgba(251, 191, 36, 0.15);
+    --badge-border: rgba(251, 191, 36, 0.3);
+    --badge-text: #fbbf24;
+    --badge-glow: rgba(251, 191, 36, 0.4);
+}
+
+/* ============================================
+   BADGE CARD ANIMATIONS
+   ============================================ */
+
+@keyframes badgeUnlock {
+    0% {
+        transform: scale(0.8) rotate(-5deg);
+        opacity: 0;
+        filter: blur(10px);
+    }
+    50% {
+        transform: scale(1.1) rotate(2deg);
+        filter: blur(0);
+    }
+    70% {
+        transform: scale(0.95) rotate(-1deg);
+    }
+    100% {
+        transform: scale(1) rotate(0);
+        opacity: 1;
+    }
+}
+
+@keyframes badgeGlow {
+    0%, 100% {
+        box-shadow: 0 0 20px var(--badge-glow);
+    }
+    50% {
+        box-shadow: 0 0 40px var(--badge-glow), 0 0 60px var(--badge-glow);
+    }
+}
+
+@keyframes badgeShine {
+    0% {
+        transform: translateX(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(200%) rotate(45deg);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes pulse-rank {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+/* Badge Unlock Animation */
+.badge-card.earned {
+    animation: badgeUnlock 0.6s ease-out;
+}
+
+.badge-card.earned.rarity-epic,
+.badge-card.earned.rarity-legendary {
+    animation: badgeUnlock 0.6s ease-out, badgeGlow 2s ease-in-out infinite 0.6s;
+}
+
+/* Badge Shine Effect */
+.badge-shine {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        45deg,
+        transparent 40%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 60%
+    );
+    animation: badgeShine 3s infinite;
+    pointer-events: none;
+}
+
+/* ============================================
+   RANK STYLES
+   ============================================ */
+
+.rank-novice {
+    --rank-bg: rgba(34, 197, 94, 0.15);
+    --rank-border: rgba(34, 197, 94, 0.3);
+    --rank-text: #22c55e;
+    --rank-gradient: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.rank-hunter {
+    --rank-bg: rgba(245, 158, 11, 0.15);
+    --rank-border: rgba(245, 158, 11, 0.3);
+    --rank-text: #f59e0b;
+    --rank-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.rank-expert {
+    --rank-bg: rgba(59, 130, 246, 0.15);
+    --rank-border: rgba(59, 130, 246, 0.3);
+    --rank-text: #3b82f6;
+    --rank-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.rank-elite {
+    --rank-bg: rgba(139, 92, 246, 0.15);
+    --rank-border: rgba(139, 92, 246, 0.3);
+    --rank-text: #8b5cf6;
+    --rank-gradient: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.rank-legend {
+    --rank-bg: rgba(251, 191, 36, 0.15);
+    --rank-border: rgba(251, 191, 36, 0.3);
+    --rank-text: #fbbf24;
+    --rank-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+}
+
+/* Rank Badge Styling */
+.rank-badge {
+    background: var(--rank-bg);
+    border: 2px solid var(--rank-border);
+    color: var(--rank-text);
+}
+
+.rank-tag {
+    background: var(--rank-bg);
+    border: 1px solid var(--rank-border);
+    color: var(--rank-text);
+}
+
+/* ============================================
+   PROGRESS BAR ANIMATIONS
+   ============================================ */
+
+@keyframes progressFill {
+    from {
+        width: 0;
+    }
+}
+
+.rank-progress-fill,
+.progress-fill {
+    animation: progressFill 1s ease-out;
+}
+
+/* ============================================
+   FLOATING BADGE EFFECTS
+   ============================================ */
+
+.badge-item:hover .badge-icon-wrap {
+    animation: float 2s ease-in-out infinite;
+}
+
+/* ============================================
+   RANK UP CELEBRATION
+   ============================================ */
+
+.rank-up-celebration {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.rank-up-celebration::before {
+    content: '🎉';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 5rem;
+    animation: rankUpPop 1s ease-out forwards;
+}
+
+@keyframes rankUpPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   BADGE UNLOCK NOTIFICATION
+   ============================================ */
+
+.badge-unlock-notification {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--badge-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 20px var(--badge-glow);
+    animation: slideInRight 0.5s ease-out;
+    z-index: 1000;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.badge-unlock-notification .badge-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.badge-unlock-notification .notification-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.badge-unlock-notification .notification-title {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.badge-unlock-notification .notification-text {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   STREAK INDICATOR
+   ============================================ */
+
+.streak-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: 4px 12px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: var(--radius-full);
+    color: #ef4444;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.streak-indicator i {
+    animation: pulse-fire 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-fire {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+    .badge-unlock-notification {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+    }
+    
+    .badge-card.earned.rarity-epic,
+    .badge-card.earned.rarity-legendary {
+        animation: badgeUnlock 0.6s ease-out;
+    }
+}
+
+/* ============================================
+   DARK THEME SPECIFIC
+   ============================================ */
+
+[data-theme="dark"] .badge-card.locked {
+    opacity: 0.5;
+    filter: grayscale(0.5);
+}
+
+[data-theme="dark"] .badge-card.locked:hover {
+    opacity: 0.7;
+    filter: grayscale(0.3);
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .badge-card.earned,
+    .badge-card.earned.rarity-epic,
+    .badge-card.earned.rarity-legendary,
+    .badge-shine,
+    .rank-progress-fill,
+    .progress-fill {
+        animation: none;
+    }
+    
+    .badge-card:hover {
+        transform: none;
+    }
+}

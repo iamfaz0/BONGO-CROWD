@@ -1,0 +1,655 @@
+<div class="profile-page">
+    <div class="profile-header">
+        <div class="profile-cover"></div>
+        
+        <div class="profile-info-container">
+            <div class="profile-avatar">
+                <% if (profile.avatar_url) { %>
+                    <img src="<%= profile.avatar_url %>" alt="<%= profile.display_name %>">
+                <% } else { %>
+                    <span><%= profile.display_name?.charAt(0).toUpperCase() || profile.username.charAt(0).toUpperCase() %></span>
+                <% } %>
+                
+                <% if (rank) { %>
+                <div class="rank-indicator rank-<%= rank %>" title="Rank: <%= rank.charAt(0).toUpperCase() + rank.slice(1) %>">
+                    <%= rank === 'legend' ? '👑' : rank === 'elite' ? '💎' : rank === 'expert' ? '🎯' : rank === 'hunter' ? '🔥' : '🌱' %>
+                </div>
+                <% } %>
+            </div>
+            
+            <div class="profile-info">
+                <h1 class="profile-name"><%= profile.display_name || profile.username %></h1>
+                <p class="profile-username">@<%= profile.username %></p>
+                
+                <% if (profile.bio) { %>
+                    <p class="profile-bio"><%= profile.bio %></p>
+                <% } %>
+                
+                <div class="profile-meta">
+                    <% if (profile.location) { %>
+                        <span><i class="fas fa-map-marker-alt"></i> <%= profile.location %></span>
+                    <% } %>
+                    
+                    <span><i class="fas fa-calendar"></i> Joined <%= new Date(profile.created_at).toLocaleDateString() %></span>
+                    
+                    <% if (profile.website) { %>
+                        <a href="<%= profile.website %>" target="_blank"><i class="fas fa-link"></i> Website</a>
+                    <% } %>
+                    
+                    <% if (profile.twitter) { %>
+                        <a href="https://twitter.com/<%= profile.twitter %>" target="_blank"><i class="fab fa-twitter"></i> @<%= profile.twitter %></a>
+                    <% } %>
+                    
+                    <% if (profile.github) { %>
+                        <a href="https://github.com/<%= profile.github %>" target="_blank"><i class="fab fa-github"></i> @<%= profile.github %></a>
+                    <% } %>
+                </div>
+            </div>
+            
+            <% if (isOwnProfile) { %>
+                <div class="profile-actions">
+                    <a href="/users/settings" class="btn btn-secondary"><i class="fas fa-cog"></i> Edit Profile</a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+    
+    <div class="profile-content">
+        <!-- Stats Cards -->
+        <div class="profile-stats">
+            <div class="stat-card">
+                <div class="stat-value"><%= formatCurrency ? formatCurrency(profile.total_earnings || 0) : '$' + (profile.total_earnings || 0) %></div>
+                <div class="stat-label">Total Earnings</div>
+            </div>
+            <div class="stat-card reputation-card">
+                <div class="stat-value reputation"><%= profile.reputation?.toLocaleString() || 0 %></div>
+                <div class="stat-label">Reputation</div>
+                <% if (rank) { %>
+                <div class="rank-tag rank-<%= rank %>"><%= rank.charAt(0).toUpperCase() + rank.slice(1) %></div>
+                <% } %>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><%= profile.points?.toLocaleString() || 0 %></div>
+                <div class="stat-label">Points</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><%= validReportsCount || reports?.length || 0 %></div>
+                <div class="stat-label">Valid Reports</div>
+            </div>
+        </div>
+        
+        <!-- Rank Progress Bar -->
+        <% if (rankProgress) { %>
+        <div class="rank-progress-wrapper">
+            <div class="rank-progress-header">
+                <span class="current-rank"><%= rankProgress.current.charAt(0).toUpperCase() + rankProgress.current.slice(1) %></span>
+                <span class="next-rank"><%= rankProgress.next ? rankProgress.next.charAt(0).toUpperCase() + rankProgress.next.slice(1) : 'Max Rank' %></span>
+            </div>
+            <div class="rank-progress-bar">
+                <div class="rank-progress-fill" style="width: <%= rankProgress.percent %>%"></div>
+            </div>
+            <div class="rank-progress-info">
+                <span class="points-info"><%= (profile.reputation || 0).toLocaleString() %> / <%= rankProgress.nextThreshold ? rankProgress.nextThreshold.toLocaleString() : '∞' %> points</span>
+                <span class="points-needed"><%= rankProgress.pointsNeeded > 0 ? rankProgress.pointsNeeded.toLocaleString() + ' points to next rank' : 'Maximum rank reached!' %></span>
+            </div>
+        </div>
+        <% } %>
+        
+        <div class="profile-sections">
+            <!-- Reports Section -->
+            <div class="profile-section">
+                <h2><i class="fas fa-bug"></i> Disclosed Reports</h2>
+                
+                <% if (reports && reports.length > 0) { %>
+                    <div class="reports-list">
+                        <% reports.forEach(report => { %>
+                            <div class="report-item">
+                                <div class="report-header">
+                                    <a href="/reports/<%= report.report_id %>" class="report-id"><%= report.report_id %></a>
+                                    <span class="badge badge-<%= report.severity %>"><%= report.severity %></span>
+                                </div>
+                                <h4><%= report.disclosure_title || 'Untitled Report' %></h4>
+                                <p class="report-program"><i class="fas fa-bullseye"></i> <%= report.program_name %></p>
+                                
+                                <p class="report-date"><i class="fas fa-clock"></i> <%= timeAgo ? timeAgo(report.disclosed_at) : new Date(report.disclosed_at).toLocaleDateString() %></p>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No disclosed reports yet</p>
+                    </div>
+                <% } %>
+            </div>
+            
+            <!-- Badges Section -->
+            <div class="profile-section badges-section">
+                <div class="badges-section-header">
+                    <h2><i class="fas fa-trophy"></i> Badges</h2>
+                    <% if (isOwnProfile) { %>
+                    <a href="/users/badges" class="view-all-link">View All <i class="fas fa-arrow-right"></i></a>
+                    <% } %>
+                </div>
+                
+                <% if (badges && badges.length > 0) { %>
+                    <div class="badges-showcase">
+                        <!-- Featured Badges (first 3 with rarity) -->
+                        <% const featuredBadges = badges.slice(0, 3); %>
+                        <div class="badges-featured">
+                            <% featuredBadges.forEach(badge => { %>
+                                <div class="badge-item <%= badge.rarity || 'common' %>" title="<%= badge.name %>: <%= badge.description %>">
+                                    <div class="badge-icon-wrap" style="background: linear-gradient(135deg, <%= badge.gradient_start || '#7c3aed' %> 0%, <%= badge.gradient_end || '#06b6d4' %> 100%)">
+                                        <span class="badge-emoji"><%= badge.icon || '🏆' %></span>
+                                    </div>
+                                    <span class="badge-name-small"><%= badge.name %></span>
+                                </div>
+                            <% }) %>
+                        </div>
+                        
+                        <!-- All Badges Grid (small) -->
+                        <% if (badges.length > 3) { %>
+                        <div class="badges-count">
+                            <span>+<%= badges.length - 3 %> more <%= badges.length - 3 === 1 ? 'badge' : 'badges' %></span>
+                        </div>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fas fa-medal"></i>
+                        <p>No badges earned yet</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-xl);
+}
+
+.profile-header {
+    position: relative;
+    margin-bottom: var(--space-2xl);
+}
+
+.profile-cover {
+    height: 200px;
+    background: var(--gradient-primary);
+    border-radius: var(--radius-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(124, 58, 237, 0.3) 0%, transparent 70%);
+}
+
+.profile-info-container {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-xl);
+    margin-top: -60px;
+    padding: 0 var(--space-xl);
+    position: relative;
+}
+
+/* Circular Avatar with Gradient Border */
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid transparent;
+    background: linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+                var(--gradient-primary) border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.2);
+    position: relative;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-avatar span {
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.rank-indicator {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    border: 3px solid var(--bg-card);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.rank-indicator.novice { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+.rank-indicator.hunter { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.rank-indicator.expert { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+.rank-indicator.elite { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+.rank-indicator.legend { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
+
+.profile-info {
+    flex: 1;
+    padding-bottom: var(--space-md);
+}
+
+.profile-name {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: var(--space-xs);
+}
+
+.profile-username {
+    color: var(--hp-cyan);
+    font-size: 1.125rem;
+    margin-bottom: var(--space-sm);
+}
+
+.profile-bio {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+    max-width: 600px;
+}
+
+.profile-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.profile-meta span,
+.profile-meta a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-meta a {
+    color: var(--hp-cyan-light);
+}
+
+.profile-meta a:hover {
+    color: var(--hp-cyan);
+}
+
+.profile-actions {
+    margin-left: auto;
+    padding-bottom: var(--space-md);
+}
+
+.profile-content {
+    padding: 0 var(--space-xl);
+}
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    text-align: center;
+    position: relative;
+}
+
+.stat-card.reputation-card {
+    border-color: var(--hp-purple);
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.1);
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: var(--space-xs);
+}
+
+.stat-value.reputation {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.rank-tag {
+    display: inline-block;
+    margin-top: var(--space-xs);
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.rank-tag.novice { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+.rank-tag.hunter { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.rank-tag.expert { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.rank-tag.elite { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
+.rank-tag.legend { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+
+/* Rank Progress Bar */
+.rank-progress-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-2xl);
+}
+
+.rank-progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-sm);
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.rank-progress-bar {
+    height: 8px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-bottom: var(--space-sm);
+}
+
+.rank-progress-fill {
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: var(--radius-full);
+    transition: width 0.5s ease;
+}
+
+.rank-progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.profile-sections {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-xl);
+}
+
+.profile-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+}
+
+.profile-section h2 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: var(--space-lg);
+    color: var(--text-primary);
+}
+
+.profile-section h2 i {
+    color: var(--hp-cyan);
+}
+
+.reports-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.report-item {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: var(--space-md);
+    transition: var(--transition);
+}
+
+.report-item:hover {
+    border-color: var(--border-hover);
+}
+
+.report-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xs);
+}
+
+.report-id {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--hp-cyan-light);
+}
+
+.report-item h4 {
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+}
+
+.report-program {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.report-program i {
+    color: var(--hp-cyan);
+}
+
+.report-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: var(--space-xs);
+}
+
+/* Badges Section */
+.badges-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.badges-section-header h2 {
+    margin: 0;
+}
+
+.view-all-link {
+    font-size: 0.875rem;
+    color: var(--hp-cyan);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.view-all-link:hover {
+    color: var(--hp-cyan-light);
+}
+
+.badges-showcase {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.badges-featured {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.badge-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border-radius: var(--radius-lg);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+    cursor: help;
+    min-width: 80px;
+}
+
+.badge-item:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-hover);
+}
+
+.badge-item.legendary {
+    border-color: rgba(251, 191, 36, 0.3);
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.1);
+}
+
+.badge-item.epic {
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.1);
+}
+
+.badge-item.rare {
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.badge-icon-wrap {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badge-emoji {
+    font-size: 1.75rem;
+}
+
+.badge-name-small {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.badges-count {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--space-2xl);
+    color: var(--text-muted);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: var(--space-md);
+    opacity: 0.5;
+}
+
+.badge-critical { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 10px; border-radius: var(--radius-full); font-size: 0.75rem; }
+.badge-high { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 10px; border-radius: var(--radius-full); font-size: 0.75rem; }
+.badge-medium { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); padding: 4px 10px; border-radius: var(--radius-full); font-size: 0.75rem; }
+.badge-low { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: var(--radius-full); font-size: 0.75rem; }
+
+@media (max-width: 1024px) {
+    .profile-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .profile-sections {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .profile-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-info-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .profile-avatar span {
+        font-size: 2.5rem;
+    }
+    
+    .profile-actions {
+        margin-left: 0;
+    }
+    
+    .badges-featured {
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+// Animate rank progress bar on load
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBar = document.querySelector('.rank-progress-fill');
+    if (progressBar) {
+        const width = progressBar.style.width;
+        progressBar.style.width = '0';
+        setTimeout(() => {
+            progressBar.style.width = width;
+        }, 200);
+    }
+});
+</script>

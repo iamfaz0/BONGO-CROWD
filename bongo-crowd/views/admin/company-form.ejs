@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | BONGO-CROWD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .form-header {
+            margin-bottom: 2rem;
+        }
+        
+        .form-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-subtitle {
+            color: #71717a;
+        }
+        
+        .form-card {
+            background: rgba(21, 21, 32, 0.8);
+            border: 1px solid rgba(124, 58, 237, 0.15);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #e4e4e7;
+            font-weight: 500;
+        }
+        
+        .form-label .required {
+            color: #ef4444;
+            margin-left: 0.25rem;
+        }
+        
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(9, 9, 11, 0.5);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 8px;
+            color: #e4e4e7;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-hint {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #71717a;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(124, 58, 237, 0.1);
+        }
+        
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            color: #7c3aed;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        
+        .error-list {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav style="background: rgba(21, 21, 32, 0.95); border-bottom: 1px solid rgba(124, 58, 237, 0.2); padding: 1rem 2rem;">
+        <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+            <a href="/" style="font-size: 1.5rem; font-weight: 800; text-decoration: none;">
+                <span style="color: #7c3aed;">◈</span>
+                <span style="background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">BONGO-CROWD</span>
+            </a>
+            <div style="display: flex; gap: 2rem;">
+                <a href="/admin/dashboard" style="color: #a1a1aa; text-decoration: none;">Dashboard</a>
+                <a href="/admin/companies" style="color: #a1a1aa; text-decoration: none;">Companies</a>
+                <a href="/admin/programs" style="color: #a1a1aa; text-decoration: none;">Programs</a>
+                <a href="/admin/users" style="color: #a1a1aa; text-decoration: none;">Users</a>
+                <a href="/auth/logout" style="color: #ef4444; text-decoration: none;">Logout</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="form-container">
+        <% if (error.length > 0) { %>
+            <div class="alert alert-error">
+                <%= error %>
+            </div>
+        <% } %>
+        
+        <div class="form-header">
+            <h1 class="form-title"><%= title %></h1>
+            <p class="form-subtitle"><%= company ? 'Update company details' : 'Create a new company for bug bounty programs' %></p>
+        </div>
+        
+        <div class="form-card">
+            <form action="<%= company ? '/admin/companies/' + company.id + '/edit' : '/admin/companies/new' %>" method="POST">
+                
+                <div class="form-group">
+                    <label class="form-label" for="name">
+                        Company Name
+                        <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        class="form-input"
+                        value="<%= company ? company.name : '' %>"
+                        required
+                        placeholder="e.g., Acme Corporation"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="email">
+                        Contact Email
+                        <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        class="form-input"
+                        value="<%= company ? company.email : '' %>"
+                        required
+                        placeholder="security@company.com"
+                    >
+                    <p class="form-hint">This will also be used to create the company owner account.</p>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="description">Description</label>
+                    <textarea 
+                        id="description" 
+                        name="description" 
+                        class="form-textarea"
+                        placeholder="Brief description of the company..."
+                    ><%= company ? company.description : '' %></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="website">Website</label>
+                    <input 
+                        type="url" 
+                        id="website" 
+                        name="website" 
+                        class="form-input"
+                        value="<%= company ? company.website : '' %>"
+                        placeholder="https://company.com"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="logo_url">Logo URL</label>
+                    <input 
+                        type="url" 
+                        id="logo_url" 
+                        name="logo_url" 
+                        class="form-input"
+                        value="<%= company ? company.logo_url : '' %>"
+                        placeholder="https://company.com/logo.png"
+                    >
+                    <p class="form-hint">Optional: URL to company logo image (recommended size: 200x200px)</p>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        <%= company ? 'Update Company' : 'Create Company' %>
+                    </button>
+                    
+                    <a href="/admin/companies" class="btn btn-secondary">Cancel</a>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+    
+    
+</body>
+</html>

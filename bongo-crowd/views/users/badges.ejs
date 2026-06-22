@@ -1,0 +1,893 @@
+<% title = 'Badges & Reputation' %>
+
+<div class="badges-page">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Badges & Reputation</h1>
+            <p>Track your achievements, earn badges, and climb the ranks</p>
+        </div>
+
+        <!-- Reputation Card -->
+        <div class="reputation-card">
+            <div class="reputation-header">
+                <div class="reputation-info">
+                    <div class="rank-badge rank-<%= reputation.rank %>">
+                        <span class="rank-icon"><%= reputation.rank === 'legend' ? '👑' : reputation.rank === 'elite' ? '💎' : reputation.rank === 'expert' ? '🎯' : reputation.rank === 'hunter' ? '🔥' : '🌱' %></span>
+                        <span class="rank-name"><%= reputation.rank.charAt(0).toUpperCase() + reputation.rank.slice(1) %></span>
+                    </div>
+                    <div class="reputation-score">
+                        <span class="score-value"><%= reputation.score?.toLocaleString() || 0 %></span>
+                        <span class="score-label">Reputation Points</span>
+                    </div>
+                </div>
+                
+                <% if (reputation.next_rank) { %>
+                <div class="rank-progress-section">
+                    <div class="rank-progress-info">
+                        <span class="next-rank-label">Next: <strong><%= reputation.next_rank.charAt(0).toUpperCase() + reputation.next_rank.slice(1) %></strong></span>
+                        <span class="points-needed"><%= reputation.points_to_next_rank?.toLocaleString() %> points needed</span>
+                    </div>
+                    <div class="rank-progress-bar">
+                        <div class="rank-progress-fill" style="width: <%= reputation.rank_progress_percent || 0 %>%"></div>
+                    </div>
+                </div>
+                <% } else { %>
+                <div class="rank-progress-section max-rank">
+                    <span class="max-rank-message">🎉 You've reached the maximum rank!</span>
+                </div>
+                <% } %>
+            </div>
+
+            <div class="reputation-stats">
+                <div class="stat-item">
+                    <span class="stat-icon">📊</span>
+                    <span class="stat-value"><%= reputation.valid_reports_count || 0 %></span>
+                    <span class="stat-label">Valid Reports</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">💀</span>
+                    <span class="stat-value"><%= reputation.critical_findings || 0 %></span>
+                    <span class="stat-label">Critical</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">⚡</span>
+                    <span class="stat-value"><%= reputation.high_findings || 0 %></span>
+                    <span class="stat-label">High</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">🏆</span>
+                    <span class="stat-value"><%= reputation.badges || 0 %></span>
+                    <span class="stat-label">Badges</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon earnings">💰</span>
+                    <span class="stat-value"><%= formatCurrency ? formatCurrency(reputation.total_bounties_earned || 0) : '$' + (reputation.total_bounties_earned || 0) %></span>
+                    <span class="stat-label">Earned</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Badges Grid -->
+        <div class="badges-container">
+            <div class="badges-header">
+                <h2><i class="fas fa-medal"></i> Your Badges</h2>
+                <span class="badges-count"><%= badges.filter(b => b.earned).length %> / <%= badges.length %> Earned</span>
+            </div>
+
+            <% if (badges.filter(b => b.earned).length === 0) { %>
+            <div class="empty-badges">
+                <div class="empty-icon">🏅</div>
+                <h3>No Badges Yet</h3>
+                <p>Start submitting reports to earn your first badge!</p>
+                <a href="/programs" class="btn btn-primary">Browse Programs</a>
+            </div>
+            <% } %>
+
+            <!-- Skill Badges -->
+            <% if (badgesByCategory.skill.length > 0) { %>
+            <div class="badge-section">
+                <h3 class="section-title">
+                    <span class="section-icon">🎯</span>
+                    Skill Badges
+                    <span class="badge-count"><%= badgesByCategory.skill.filter(b => b.earned).length %>/<%= badgesByCategory.skill.length %></span>
+                </h3>
+                <div class="badges-grid">
+                    <% badgesByCategory.skill.forEach(badge => { %>
+                    <div class="badge-card <%= badge.earned ? 'earned' : 'locked' %> rarity-<%= badge.rarity %>" data-badge-id="<%= badge.id %>">
+                        <div class="badge-glow"></div>
+                        <div class="badge-icon-wrap" style="--badge-color: <%= badge.gradient_start %>; --badge-gradient-end: <%= badge.gradient_end %>">
+                            <span class="badge-emoji"><%= badge.icon %></span>
+                            <% if (badge.earned) { %>
+                            <div class="badge-shine"></div>
+                            <% } %>
+                        </div>
+                        <div class="badge-content">
+                            <h4 class="badge-name"><%= badge.name %></h4>
+                            <p class="badge-description"><%= badge.description %></p>
+                            <div class="badge-rarity">
+                                <span class="rarity-label <%= badge.rarity %>"><%= badge.rarity.charAt(0).toUpperCase() + badge.rarity.slice(1) %></span>
+                                <span class="points-reward">+<%= badge.points_reward %> pts</span>
+                            </div>
+                            <% if (!badge.earned) { %>
+                            <div class="badge-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: <%= badge.progress_percent %>%"></div>
+                                </div>
+                                <span class="progress-text"><%= badge.progress.current %> / <%= badge.progress.required %></span>
+                            </div>
+                            <% } else { %>
+                            <div class="earned-date">
+                                <i class="fas fa-check-circle"></i> Earned <%= timeAgo ? timeAgo(badge.earned_at) : new Date(badge.earned_at).toLocaleDateString() %>
+                            </div>
+                            <% } %>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Achievement Badges -->
+            <% if (badgesByCategory.achievement.length > 0) { %>
+            <div class="badge-section">
+                <h3 class="section-title">
+                    <span class="section-icon">🏆</span>
+                    Achievements
+                    <span class="badge-count"><%= badgesByCategory.achievement.filter(b => b.earned).length %>/<%= badgesByCategory.achievement.length %></span>
+                </h3>
+                <div class="badges-grid">
+                    <% badgesByCategory.achievement.forEach(badge => { %>
+                    <div class="badge-card <%= badge.earned ? 'earned' : 'locked' %> rarity-<%= badge.rarity %>" data-badge-id="<%= badge.id %>">
+                        <div class="badge-glow"></div>
+                        <div class="badge-icon-wrap" style="--badge-color: <%= badge.gradient_start %>; --badge-gradient-end: <%= badge.gradient_end %>">
+                            <span class="badge-emoji"><%= badge.icon %></span>
+                            <% if (badge.earned) { %>
+                            <div class="badge-shine"></div>
+                            <% } %>
+                        </div>
+                        <div class="badge-content">
+                            <h4 class="badge-name"><%= badge.name %></h4>
+                            <p class="badge-description"><%= badge.description %></p>
+                            <div class="badge-rarity">
+                                <span class="rarity-label <%= badge.rarity %>"><%= badge.rarity.charAt(0).toUpperCase() + badge.rarity.slice(1) %></span>
+                                <span class="points-reward">+<%= badge.points_reward %> pts</span>
+                            </div>
+                            <% if (!badge.earned) { %>
+                            <div class="badge-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: <%= badge.progress_percent %>%"></div>
+                                </div>
+                                <span class="progress-text"><%= badge.progress.current %> / <%= badge.progress.required %></span>
+                            </div>
+                            <% } else { %>
+                            <div class="earned-date">
+                                <i class="fas fa-check-circle"></i> Earned <%= timeAgo ? timeAgo(badge.earned_at) : new Date(badge.earned_at).toLocaleDateString() %>
+                            </div>
+                            <% } %>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Activity Badges -->
+            <% if (badgesByCategory.activity.length > 0) { %>
+            <div class="badge-section">
+                <h3 class="section-title">
+                    <span class="section-icon">🔥</span>
+                    Activity
+                    <span class="badge-count"><%= badgesByCategory.activity.filter(b => b.earned).length %>/<%= badgesByCategory.activity.length %></span>
+                </h3>
+                <div class="badges-grid">
+                    <% badgesByCategory.activity.forEach(badge => { %>
+                    <div class="badge-card <%= badge.earned ? 'earned' : 'locked' %> rarity-<%= badge.rarity %>" data-badge-id="<%= badge.id %>">
+                        <div class="badge-glow"></div>
+                        <div class="badge-icon-wrap" style="--badge-color: <%= badge.gradient_start %>; --badge-gradient-end: <%= badge.gradient_end %>">
+                            <span class="badge-emoji"><%= badge.icon %></span>
+                            <% if (badge.earned) { %>
+                            <div class="badge-shine"></div>
+                            <% } %>
+                        </div>
+                        <div class="badge-content">
+                            <h4 class="badge-name"><%= badge.name %></h4>
+                            <p class="badge-description"><%= badge.description %></p>
+                            <div class="badge-rarity">
+                                <span class="rarity-label <%= badge.rarity %>"><%= badge.rarity.charAt(0).toUpperCase() + badge.rarity.slice(1) %></span>
+                                <span class="points-reward">+<%= badge.points_reward %> pts</span>
+                            </div>
+                            <% if (!badge.earned) { %>
+                            <div class="badge-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: <%= badge.progress_percent %>%"></div>
+                                </div>
+                                <span class="progress-text"><%= badge.progress.current %> / <%= badge.progress.required %></span>
+                            </div>
+                            <% } else { %>
+                            <div class="earned-date">
+                                <i class="fas fa-check-circle"></i> Earned <%= timeAgo ? timeAgo(badge.earned_at) : new Date(badge.earned_at).toLocaleDateString() %>
+                            </div>
+                            <% } %>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Special Badges -->
+            <% if (badgesByCategory.special.length > 0) { %>
+            <div class="badge-section">
+                <h3 class="section-title">
+                    <span class="section-icon">✨</span>
+                    Special
+                    <span class="badge-count"><%= badgesByCategory.special.filter(b => b.earned).length %>/<%= badgesByCategory.special.length %></span>
+                </h3>
+                <div class="badges-grid">
+                    <% badgesByCategory.special.forEach(badge => { %>
+                    <div class="badge-card <%= badge.earned ? 'earned' : 'locked' %> rarity-<%= badge.rarity %>" data-badge-id="<%= badge.id %>">
+                        <div class="badge-glow"></div>
+                        <div class="badge-icon-wrap" style="--badge-color: <%= badge.gradient_start %>; --badge-gradient-end: <%= badge.gradient_end %>">
+                            <span class="badge-emoji"><%= badge.icon %></span>
+                            <% if (badge.earned) { %>
+                            <div class="badge-shine"></div>
+                            <% } %>
+                        </div>
+                        <div class="badge-content">
+                            <h4 class="badge-name"><%= badge.name %></h4>
+                            <p class="badge-description"><%= badge.description %></p>
+                            <div class="badge-rarity">
+                                <span class="rarity-label <%= badge.rarity %>"><%= badge.rarity.charAt(0).toUpperCase() + badge.rarity.slice(1) %></span>
+                                <span class="points-reward">+<%= badge.points_reward %> pts</span>
+                            </div>
+                            <% if (!badge.earned) { %>
+                            <div class="badge-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: <%= badge.progress_percent %>%"></div>
+                                </div>
+                                <span class="progress-text"><%= badge.progress.current %> / <%= badge.progress.required %></span>
+                            </div>
+                            <% } else { %>
+                            <div class="earned-date">
+                                <i class="fas fa-check-circle"></i> Earned <%= timeAgo ? timeAgo(badge.earned_at) : new Date(badge.earned_at).toLocaleDateString() %>
+                            </div>
+                            <% } %>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+            </div>
+            <% } %>
+        </div>
+
+        <!-- Recent Activity -->
+        <% if (reputationHistory && reputationHistory.length > 0) { %>
+        <div class="activity-section">
+            <h3><i class="fas fa-history"></i> Recent Activity</h3>
+            <div class="activity-list">
+                <% reputationHistory.slice(0, 10).forEach(activity => { %>
+                <div class="activity-item">
+                    <div class="activity-icon <%= activity.points_change >= 0 ? 'positive' : 'negative' %>">
+                        <i class="fas <%= activity.points_change >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' %>"></i>
+                    </div>
+                    <div class="activity-content">
+                        <span class="activity-action"><%= activity.action_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) %></span>
+                        <span class="activity-description"><%= activity.description || '' %></span>
+                    </div>
+                    <div class="activity-points <%= activity.points_change >= 0 ? 'positive' : 'negative' %>">
+                        <%= activity.points_change >= 0 ? '+' : '' %><%= activity.points_change %>
+                    </div>
+                    <div class="activity-time">
+                        <%= timeAgo ? timeAgo(activity.created_at) : new Date(activity.created_at).toLocaleDateString() %>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+        <% } %>
+    </div>
+</div>
+
+<style>
+.badges-page {
+    padding: var(--space-3xl) 0;
+    background: var(--bg-primary);
+    min-height: 100vh;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: var(--space-3xl);
+}
+
+.page-header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: var(--space-md);
+}
+
+.page-header p {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+}
+
+/* Reputation Card */
+.reputation-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--space-2xl);
+    margin-bottom: var(--space-3xl);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.reputation-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xl);
+    align-items: center;
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-xl);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.reputation-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xl);
+}
+
+.rank-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-lg);
+    min-width: 120px;
+}
+
+.rank-badge.novice {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%);
+    border: 2px solid rgba(34, 197, 94, 0.3);
+}
+
+.rank-badge.hunter {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%);
+    border: 2px solid rgba(245, 158, 11, 0.3);
+}
+
+.rank-badge.expert {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+.rank-badge.elite {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.05) 100%);
+    border: 2px solid rgba(139, 92, 246, 0.3);
+}
+
+.rank-badge.legend {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(251, 191, 36, 0.05) 100%);
+    border: 2px solid rgba(251, 191, 36, 0.3);
+}
+
+.rank-icon {
+    font-size: 2rem;
+    margin-bottom: var(--space-xs);
+}
+
+.rank-name {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--text-primary);
+}
+
+.reputation-score {
+    display: flex;
+    flex-direction: column;
+}
+
+.score-value {
+    font-size: 3rem;
+    font-weight: 800;
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+.score-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.rank-progress-section {
+    flex: 1;
+    min-width: 250px;
+}
+
+.rank-progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-sm);
+}
+
+.next-rank-label {
+    color: var(--text-secondary);
+}
+
+.next-rank-label strong {
+    color: var(--hp-cyan);
+}
+
+.points-needed {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.rank-progress-bar {
+    height: 8px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.rank-progress-fill {
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: var(--radius-full);
+    transition: width 0.5s ease;
+}
+
+.max-rank {
+    text-align: center;
+    padding: var(--space-md);
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(251, 191, 36, 0.02) 100%);
+    border-radius: var(--radius-lg);
+}
+
+.max-rank-message {
+    color: #fbbf24;
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+.reputation-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: var(--space-lg);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-md);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-lg);
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-xs);
+}
+
+.stat-icon.earnings {
+    color: var(--success);
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Badges Container */
+.badges-container {
+    margin-bottom: var(--space-3xl);
+}
+
+.badges-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xl);
+}
+
+.badges-header h2 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.badges-count {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.empty-badges {
+    text-align: center;
+    padding: var(--space-3xl);
+    background: var(--bg-card);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-xl);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: var(--space-lg);
+}
+
+.empty-badges h3 {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-sm);
+}
+
+.empty-badges p {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-lg);
+}
+
+/* Badge Section */
+.badge-section {
+    margin-bottom: var(--space-2xl);
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: var(--space-lg);
+    color: var(--text-primary);
+}
+
+.section-icon {
+    font-size: 1.25rem;
+}
+
+.badge-count {
+    margin-left: auto;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* Badges Grid */
+.badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-lg);
+}
+
+.badge-card {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.badge-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-hover);
+}
+
+.badge-card.earned {
+    border-color: var(--hp-purple);
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.15);
+}
+
+.badge-card.locked {
+    opacity: 0.7;
+}
+
+.badge-glow {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.badge-card.earned.rarity-legendary .badge-glow {
+    opacity: 1;
+    background: radial-gradient(ellipse at top, rgba(251, 191, 36, 0.15) 0%, transparent 70%);
+}
+
+.badge-card.earned.rarity-epic .badge-glow {
+    opacity: 1;
+    background: radial-gradient(ellipse at top, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+}
+
+.badge-icon-wrap {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--badge-color, #7c3aed) 0%, var(--badge-gradient-end, #06b6d4) 100%);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--space-md);
+}
+
+.badge-emoji {
+    font-size: 2rem;
+}
+
+.badge-shine {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        45deg,
+        transparent 40%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 60%
+    );
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.badge-content {
+    position: relative;
+    z-index: 1;
+}
+
+.badge-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: var(--space-xs);
+    color: var(--text-primary);
+}
+
+.badge-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+    line-height: 1.5;
+}
+
+.badge-rarity {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+}
+
+.rarity-label {
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rarity-label.common {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+}
+
+.rarity-label.rare {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+}
+
+.rarity-label.epic {
+    background: rgba(139, 92, 246, 0.15);
+    color: #a78bfa;
+}
+
+.rarity-label.legendary {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fbbf24;
+}
+
+.points-reward {
+    font-size: 0.875rem;
+    color: var(--success);
+    font-weight: 600;
+}
+
+/* Badge Progress */
+.badge-progress {
+    margin-top: var(--space-md);
+}
+
+.progress-bar {
+    height: 6px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-bottom: var(--space-xs);
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: var(--radius-full);
+    transition: width 0.5s ease;
+}
+
+.progress-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.earned-date {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 0.875rem;
+    color: var(--success);
+}
+
+.earned-date i {
+    color: var(--success);
+}
+
+/* Activity Section */
+.activity-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+}
+
+.activity-section h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 1.25rem;
+    margin-bottom: var(--space-lg);
+}
+
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius);
+}
+
+.activity-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.activity-icon.positive {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--success);
+}
+
+.activity-icon.negative {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--error);
+}
+
+.activity-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.activity-action {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.activity-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.activity-points {
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+.activity-points.positive {
+    color: var(--success);
+}
+
+.activity-points.negative {
+    color: var(--error);
+}
+
+.activity-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .page-header h1 {
+        font-size: 2rem;
+    }
+    
+    .reputation-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .reputation-info {
+        flex-direction: column;
+    }
+    
+    .badges-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .activity-item {
+        flex-wrap: wrap;
+    }
+    
+    .activity-time {
+        width: 100%;
+        text-align: right;
+    }
+}
+</style>
+
+<script>
+// Animate progress bars on load
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBars = document.querySelectorAll('.rank-progress-fill, .progress-fill');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0';
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 100);
+    });
+    
+    // Add hover effects to badge cards
+    const badgeCards = document.querySelectorAll('.badge-card');
+    badgeCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            if (this.classList.contains('earned')) {
+                this.style.transform = 'translateY(-4px) scale(1.02)';
+            }
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+        });
+    });
+});
+</script>

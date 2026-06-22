@@ -1,0 +1,501 @@
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <a href="/" class="admin-logo">
+                <span class="logo-icon">◈</span>
+                <span class="logo-text">BONGO-CROWD</span>
+            </a>
+            <span class="admin-badge">Admin</span>
+        </div>
+        
+        <nav class="admin-nav">
+            <ul>
+                <li class="active"><a href="/admin/dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="/admin/users"><i class="fas fa-users"></i> Users</a></li>
+                <li><a href="/admin/companies"><i class="fas fa-building"></i> Companies</a></li>
+                <li><a href="/admin/programs"><i class="fas fa-bullseye"></i> Programs</a></li>
+                <li><a href="/admin/reports"><i class="fas fa-bug"></i> Reports</a></li>
+                <li><a href="/admin/settings"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="admin-content">
+        <header class="admin-header">
+            <h1>Dashboard</h1>
+            <div class="admin-header-actions">
+                <a href="/" class="btn btn-ghost"><i class="fas fa-arrow-left"></i> Back to Site</a>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="admin-stats-grid">
+            <div class="stat-card">
+                <div class="stat-value"><%= stats?.total_hackers || 0 %></div>
+                <div class="stat-label">Total Hackers</div>
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-value"><%= stats?.total_companies || 0 %></div>
+                <div class="stat-label">Companies</div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);"><i class="fas fa-building"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-value"><%= stats?.active_programs || 0 %></div>
+                <div class="stat-label">Active Programs</div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><i class="fas fa-bullseye"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-value"><%= stats?.total_reports || 0 %></div>
+                <div class="stat-label">Total Reports</div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><i class="fas fa-bug"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-value" style="color: var(--hp-pink);"><%= stats?.pending_reports || 0 %></div>
+                <div class="stat-label">Pending Reports</div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);"><i class="fas fa-clock"></i></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-value">$<%= stats?.total_paid ? parseInt(stats.total_paid).toLocaleString() : 0 %></div>
+                <div class="stat-label">Total Paid</div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);"><i class="fas fa-dollar-sign"></i></div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="admin-sections">
+            <div class="admin-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-users"></i> Recent Users</h3>
+                    <a href="/admin/users" class="btn btn-ghost btn-sm">View All <i class="fas fa-arrow-right"></i></a>
+                </div>
+                
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users?.forEach(user => { %>
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-avatar"><%= user.username.charAt(0).toUpperCase() %></div>
+                                            <div>
+                                                <div class="user-name">@<%= user.username %></div>
+                                                <div class="user-email"><%= user.email %></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-<%= user.role %>"><%= user.role %></span></td>
+                                    <td><span class="badge badge-<%= user.is_active ? 'active' : 'inactive' %>"><%= user.is_active ? 'Active' : 'Inactive' %></span></td>
+                                    <td><%= new Date(user.created_at).toLocaleDateString() %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-bug"></i> Recent Reports</h3>
+                    <a href="/admin/reports" class="btn btn-ghost btn-sm">View All <i class="fas fa-arrow-right"></i></a>
+                </div>
+                
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Report ID</th>
+                                <th>Program</th>
+                                <th>Researcher</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% reports?.forEach(report => { %>
+                                <tr>
+                                    <td><a href="/reports/<%= report.report_id %>" class="text-cyan"><%= report.report_id %></a></td>
+                                    <td><%= report.program %></td>
+                                    <td>@<%= report.researcher %></td>
+                                    <td><span class="badge badge-<%= report.status %>"><%= report.status %></span></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+    background: var(--bg-primary);
+}
+
+.admin-sidebar {
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    padding: var(--space-xl);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.admin-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.125rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.admin-logo .logo-icon,
+.admin-logo .logo-text {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.admin-badge {
+    background: var(--gradient-primary);
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: white;
+}
+
+.admin-nav ul {
+    list-style: none;
+}
+
+.admin-nav li {
+    margin-bottom: 4px;
+}
+
+.admin-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: var(--text-secondary);
+    border-radius: var(--radius);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition: var(--transition-fast);
+}
+
+.admin-nav a:hover,
+.admin-nav li.active a {
+    background: var(--glass);
+    color: var(--text-primary);
+}
+
+.admin-nav li.active a {
+    border-left: 3px solid var(--hp-cyan);
+}
+
+.admin-nav i {
+    width: 20px;
+    text-align: center;
+    color: var(--hp-cyan);
+}
+
+.admin-content {
+    padding: var(--space-2xl);
+    background: var(--bg-primary);
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-2xl);
+}
+
+.admin-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--space-lg);
+    margin-bottom: var(--space-2xl);
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--gradient-primary);
+}
+
+.stat-icon {
+    position: absolute;
+    top: var(--space-lg);
+    right: var(--space-lg);
+    width: 44px;
+    height: 44px;
+    background: var(--gradient-primary);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+    color: white;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: var(--space-xs);
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.admin-sections {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xl);
+}
+
+.admin-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-lg) var(--space-xl);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+}
+
+.section-header h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.section-header h3 i {
+    color: var(--hp-cyan);
+}
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 0.8125rem;
+}
+
+.admin-table-wrapper {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 14px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table th {
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: var(--bg-secondary);
+}
+
+.admin-table tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table tr:hover td {
+    background: var(--glass);
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--gradient-primary);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: white;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.user-email {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-hacker { 
+    background: rgba(59, 130, 246, 0.15); 
+    color: #60a5fa; 
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+.badge-company { 
+    background: rgba(16, 185, 129, 0.15); 
+    color: var(--success); 
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.badge-admin { 
+    background: rgba(239, 68, 68, 0.15); 
+    color: #f87171; 
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.badge-active { 
+    background: rgba(16, 185, 129, 0.15); 
+    color: var(--success); 
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.badge-inactive { 
+    background: rgba(148, 163, 184, 0.15); 
+    color: #94a3b8; 
+    border: 1px solid rgba(148, 163, 184, 0.3);
+}
+.badge-submitted { 
+    background: rgba(59, 130, 246, 0.15); 
+    color: #60a5fa; 
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+.badge-triaged { 
+    background: rgba(245, 158, 11, 0.15); 
+    color: #fbbf24; 
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.badge-resolved { 
+    background: rgba(16, 185, 129, 0.15); 
+    color: var(--success); 
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.badge-closed { 
+    background: rgba(148, 163, 184, 0.15); 
+    color: #94a3b8; 
+    border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.text-cyan {
+    color: var(--hp-cyan-light);
+}
+
+@media (max-width: 1024px) {
+    .admin-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-sidebar {
+        display: none;
+    }
+    
+    .admin-sections {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>

@@ -1,0 +1,480 @@
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <a href="/" class="admin-logo">
+                <span class="logo-icon">◈</span>
+                <span class="logo-text">BONGO-CROWD</span>
+            </a>
+            <span class="admin-badge">Admin</span>
+        </div>
+        
+        <nav class="admin-nav">
+            <ul>
+                <li><a href="/admin/dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="/admin/users"><i class="fas fa-users"></i> Users</a></li>
+                <li><a href="/admin/companies"><i class="fas fa-building"></i> Companies</a></li>
+                <li><a href="/admin/programs"><i class="fas fa-bullseye"></i> Programs</a></li>
+                <li><a href="/admin/reports"><i class="fas fa-bug"></i> Reports</a></li>
+                <li class="active"><a href="/admin/settings"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="admin-content">
+        <header class="admin-header">
+            <h1>Site Settings</h1>
+            <p>Configure your bug bounty platform</p>
+        </header>
+
+        <form action="/admin/settings" method="POST" class="settings-form">
+            <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+            <!-- General Settings -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <i class="fas fa-globe"></i>
+                    <div>
+                        <h3>General Settings</h3>
+                        <p>Basic site configuration</p>
+                    </div>
+                </div>
+                
+                <div class="settings-card-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="site_name">Site Name *</label>
+                            <input type="text" id="site_name" name="site_name" 
+                                   value="<%= settings?.site_name || 'BONGO-CROWD' %>" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contact_email">Contact Email</label>
+                            <input type="email" id="contact_email" name="contact_email"
+                                   value="<%= settings?.contact_email || '' %>">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="site_description">Site Description</label>
+                        <textarea id="site_description" name="site_description" rows="3"><%= settings?.site_description || '' %></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="footer_text">Footer Text</label>
+                        <input type="text" id="footer_text" name="footer_text" 
+                               value="<%= settings?.footer_text || 'Made with ❤️ in Tanzania' %>"
+                               placeholder="Made with ❤️ in Tanzania">
+                        <p class="form-hint">Text displayed in the footer (e.g., "Made with ❤️ by CyberHubTZ")</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maintenance Mode -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <i class="fas fa-tools" style="color: var(--hp-pink);"></i>
+                    <div>
+                        <h3>Maintenance Mode</h3>
+                        <p>Control site access during maintenance</p>
+                    </div>
+                </div>
+                
+                <div class="settings-card-body">
+                    <div class="toggle-group">
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="maintenance_mode" value="true"
+                                   <%= settings?.maintenance_mode ? 'checked' : '' %>>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Enable Maintenance Mode</span>
+                        </label>
+                        <p class="form-hint">When enabled, only admins can access the site. All other users will see the maintenance page.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="maintenance_message">Maintenance Message</label>
+                        <textarea id="maintenance_message" name="maintenance_message" rows="2" placeholder="We'll be back soon!"><%= settings?.maintenance_message || '' %></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registration Settings -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <i class="fas fa-user-plus" style="color: var(--success);"></i>
+                    <div>
+                        <h3>Registration</h3>
+                        <p>User signup configuration</p>
+                    </div>
+                </div>
+                
+                <div class="settings-card-body">
+                    <div class="toggle-group">
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="allow_signups" value="true"
+                                   <%= settings?.allow_signups !== false ? 'checked' : '' %>>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Allow New Signups</span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-group">
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="require_email_verification" value="true"
+                                   <%= settings?.require_email_verification !== false ? 'checked' : '' %>>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Require Email Verification</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="min_bounty_amount">Minimum Bounty Amount ($)</label>
+                        <input type="number" id="min_bounty_amount" name="min_bounty_amount"
+                               value="<%= settings?.min_bounty_amount || 50 %>">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Links -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <i class="fas fa-share-alt" style="color: var(--hp-cyan);"></i>
+                    <div>
+                        <h3>Social Links</h3>
+                        <p>Social media profiles</p>
+                    </div>
+                </div>
+                
+                <div class="settings-card-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="social_twitter"><i class="fab fa-twitter"></i> Twitter URL</label>
+                            <input type="url" id="social_twitter" name="social_twitter"
+                                   value="<%= settings?.social_twitter || '' %>">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="social_linkedin"><i class="fab fa-linkedin"></i> LinkedIn URL</label>
+                            <input type="url" id="social_linkedin" name="social_linkedin"
+                                   value="<%= settings?.social_linkedin || '' %>">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="social_telegram"><i class="fab fa-telegram"></i> Telegram URL</label>
+                        <input type="url" id="social_telegram" name="social_telegram"
+                               value="<%= settings?.social_telegram || '' %>">
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-actions">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.admin-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+    background: var(--bg-primary);
+}
+
+.admin-sidebar {
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    padding: var(--space-xl);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.admin-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.125rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.admin-logo .logo-icon,
+.admin-logo .logo-text {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.admin-badge {
+    background: var(--gradient-primary);
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: white;
+}
+
+.admin-nav ul {
+    list-style: none;
+}
+
+.admin-nav li {
+    margin-bottom: 4px;
+}
+
+.admin-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: var(--text-secondary);
+    border-radius: var(--radius);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition: var(--transition-fast);
+}
+
+.admin-nav a:hover,
+.admin-nav li.active a {
+    background: var(--glass);
+    color: var(--text-primary);
+}
+
+.admin-nav li.active a {
+    border-left: 3px solid var(--hp-cyan);
+}
+
+.admin-nav i {
+    width: 20px;
+    text-align: center;
+    color: var(--hp-cyan);
+}
+
+.admin-content {
+    padding: var(--space-2xl);
+    background: var(--bg-primary);
+}
+
+.admin-header {
+    margin-bottom: var(--space-2xl);
+}
+
+.admin-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: var(--space-xs);
+}
+
+.admin-header p {
+    color: var(--text-muted);
+}
+
+.settings-form {
+    max-width: 800px;
+}
+
+.settings-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: var(--space-xl);
+}
+
+.settings-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-lg) var(--space-xl);
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.settings-card-header i {
+    width: 44px;
+    height: 44px;
+    background: rgba(124, 58, 237, 0.15);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: var(--hp-cyan);
+}
+
+.settings-card-header h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-xs);
+}
+
+.settings-card-header p {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.settings-card-body {
+    padding: var(--space-xl);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-lg);
+}
+
+.form-group {
+    margin-bottom: var(--space-lg);
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--space-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.form-group label i {
+    margin-right: var(--space-xs);
+    color: var(--hp-cyan);
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    transition: var(--transition-fast);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--hp-purple);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.toggle-group {
+    margin-bottom: var(--space-lg);
+}
+
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    cursor: pointer;
+}
+
+.toggle-switch input {
+    display: none;
+}
+
+.toggle-slider {
+    width: 48px;
+    height: 26px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-full);
+    position: relative;
+    transition: var(--transition-fast);
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: var(--transition-fast);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: rgba(124, 58, 237, 0.3);
+    border-color: var(--hp-purple);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(22px);
+    background: var(--hp-cyan);
+}
+
+.toggle-label {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.form-hint {
+    margin-top: var(--space-sm);
+    margin-left: 64px;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+
+.settings-actions {
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-xl);
+    border-top: 1px solid var(--border-color);
+}
+
+@media (max-width: 1024px) {
+    .admin-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-sidebar {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .settings-card-header {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>

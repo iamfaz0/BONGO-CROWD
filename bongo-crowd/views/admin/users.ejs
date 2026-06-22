@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | BONGO-CROWD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .admin-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+        }
+        
+        .admin-filters {
+            background: rgba(21, 21, 32, 0.8);
+            border: 1px solid rgba(124, 58, 237, 0.15);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .filter-form {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-select, .filter-input {
+            padding: 0.75rem 1rem;
+            background: rgba(9, 9, 11, 0.5);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 8px;
+            color: #e4e4e7;
+        }
+        
+        .filter-input {
+            min-width: 200px;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+        
+        .btn-success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+        
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(21, 21, 32, 0.8);
+            border: 1px solid rgba(124, 58, 237, 0.15);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .admin-table th {
+            background: rgba(124, 58, 237, 0.1);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #e4e4e7;
+        }
+        
+        .admin-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+        }
+        
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #e4e4e7;
+        }
+        
+        .user-username {
+            font-size: 0.85rem;
+            color: #71717a;
+        }
+        
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .badge-hacker {
+            background: rgba(124, 58, 237, 0.2);
+            color: #a855f7;
+        }
+        
+        .badge-company {
+            background: rgba(6, 182, 212, 0.2);
+            color: #06b6d4;
+        }
+        
+        .badge-admin {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+        
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .inline-form {
+            display: inline;
+        }
+        
+        .edit-row {
+            background: rgba(124, 58, 237, 0.05);
+        }
+        
+        .edit-form {
+            padding: 1.5rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            font-weight: 500;
+            color: #e4e4e7;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 0.75rem;
+            background: rgba(9, 9, 11, 0.5);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 8px;
+            color: #e4e4e7;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: #71717a;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #7c3aed;
+        }
+        
+        .navbar {
+            background: rgba(21, 21, 32, 0.95);
+            border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+            padding: 1rem 2rem;
+        }
+        
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-decoration: none;
+        }
+        
+        .nav-logo span:first-child {
+            color: #7c3aed;
+        }
+        
+        .nav-logo span:last-child {
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: #a1a1aa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #7c3aed;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="nav-logo">
+                <span>◈</span>
+                <span>BONGO-CROWD</span>
+            </a>
+            <div class="nav-links">
+                <a href="/admin/dashboard">Dashboard</a>
+                <a href="/admin/companies">Companies</a>
+                <a href="/admin/programs">Programs</a>
+                <a href="/admin/users" style="color: #7c3aed; font-weight: 600;">Users</a>
+                <a href="/auth/logout" style="color: #ef4444;">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <% if (success && success.length > 0) { %>
+            <div class="alert alert-success" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;"><%= success %></div>
+        <% } %>
+        
+        <% if (error && error.length > 0) { %>
+            <div class="alert alert-error" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;"><%= error %></div>
+        <% } %>
+        
+        <h1 class="admin-title"><i class="fas fa-users"></i> Manage Users</h1>
+        
+        <div class="admin-filters">
+            <form action="/admin/users" method="GET" class="filter-form">
+                <select name="role" class="filter-select">
+                    <option value="all" <%= filters && filters.role === 'all' ? 'selected' : '' %>>All Roles</option>
+                    <option value="hacker" <%= filters && filters.role === 'hacker' ? 'selected' : '' %>>Hackers</option>
+                    <option value="company" <%= filters && filters.role === 'company' ? 'selected' : '' %>>Companies</option>
+                    <option value="admin" <%= filters && filters.role === 'admin' ? 'selected' : '' %>>Admins</option>
+                </select>
+                
+                <input type="text" name="search" value="<%= filters && filters.search ? filters.search : '' %>" placeholder="Search users..." class="filter-input">
+                
+                <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
+            </form>
+        </div>
+        
+        <% if (users && users.length > 0) { %>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.forEach(function(userData) { %>
+                        <tr>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar">
+                                        <% if (userData.avatar_url) { %>
+                                            <img src="<%= userData.avatar_url %>" alt="" style="width: 40px; height: 40px; border-radius: 50%;">
+                                        <% } else { %>
+                                            <span><%= userData.display_name ? userData.display_name.charAt(0).toUpperCase() : userData.username.charAt(0).toUpperCase() %></span>
+                                        <% } %>
+                                    </div>
+                                    <div>
+                                        <div class="user-name"><%= userData.display_name || userData.username %></div>
+                                        <div class="user-username">@<%= userData.username %></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-<%= userData.role %>"><%= userData.role %></span></td>
+                            <td>
+                                <% if (userData.is_banned) { %>
+                                    <span class="badge badge-danger">Banned</span>
+                                <% } else if (userData.is_active) { %>
+                                    <span class="badge badge-success">Active</span>
+                                <% } else { %>
+                                    <span class="badge badge-warning">Inactive</span>
+                                <% } %>
+                            </td>
+                            <td><%= new Date(userData.created_at).toLocaleDateString() %></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button type="button" class="btn btn-sm" style="background: rgba(124, 58, 237, 0.2); border: 1px solid rgba(124, 58, 237, 0.3); color: #7c3aed;" onclick="toggleEditModal('<%= userData.id %>')">Edit</button>
+                                    
+                                    <form action="/admin/users/<%= userData.id %>/toggle-ban" method="POST" class="inline-form" style="display: inline;">
+                                        <input type="hidden" name="banned" value="<%= !userData.is_banned %>">
+                                        <button type="submit" class="btn btn-sm <%= userData.is_banned ? 'btn-success' : 'btn-danger' %>" onclick="return confirm('<%= userData.is_banned ? 'Unban' : 'Ban' %> this user?')">
+                                            <%= userData.is_banned ? 'Unban' : 'Ban' %>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Edit Row -->
+                        <tr id="edit-row-<%= userData.id %>" class="edit-row" style="display: none;">
+                            <td colspan="5">
+                                <form action="/admin/users/<%= userData.id %>/update" method="POST" class="edit-form">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Display Name</label>
+                                            <input type="text" name="display_name" value="<%= userData.display_name || '' %>">
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label>Email</label>
+                                            <input type="email" name="email" value="<%= userData.email %>" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Role</label>
+                                            <select name="role">
+                                                <option value="hacker" <%= userData.role === 'hacker' ? 'selected' : '' %>>Hacker</option>
+                                                <option value="company" <%= userData.role === 'company' ? 'selected' : '' %>>Company</option>
+                                                <option value="admin" <%= userData.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label>Active Status</label>
+                                            <select name="is_active">
+                                                <option value="true" <%= userData.is_active ? 'selected' : '' %>>Active</option>
+                                                <option value="false" <%= !userData.is_active ? 'selected' : '' %>>Inactive</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-actions">
+                                        <button type="button" class="btn" style="background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3); color: #7c3aed;" onclick="toggleEditModal('<%= userData.id %>')">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <h3>No Users Found</h3>
+                <p>Try adjusting your filters or search terms.</p>
+            </div>
+        <% } %>
+    </div>
+
+    <script>
+    function toggleEditModal(id) {
+        const row = document.getElementById('edit-row-' + id);
+        if (row) {
+            row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+        }
+    }
+    </script>
+</body>
+</html>

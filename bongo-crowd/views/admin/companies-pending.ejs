@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | BONGO-CROWD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .admin-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        
+        .pending-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .company-card {
+            background: rgba(21, 21, 32, 0.8);
+            border: 1px solid rgba(124, 58, 237, 0.15);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .company-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .company-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #e4e4e7;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+        
+        .company-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(9, 9, 11, 0.3);
+            border-radius: 8px;
+        }
+        
+        .detail-item {
+            font-size: 0.9rem;
+        }
+        
+        .detail-label {
+            color: #71717a;
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-value {
+            color: #e4e4e7;
+        }
+        
+        .company-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(124, 58, 237, 0.1);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-approve {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .btn-approve:hover {
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-reject {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        
+        .btn-reject:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            background: rgba(21, 21, 32, 0.8);
+            border: 1px solid rgba(124, 58, 237, 0.15);
+            border-radius: 12px;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: #71717a;
+            margin-bottom: 1rem;
+        }
+        
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <nav style="background: rgba(21, 21, 32, 0.95); border-bottom: 1px solid rgba(124, 58, 237, 0.2); padding: 1rem 2rem;">
+        <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+            <a href="/" style="font-size: 1.5rem; font-weight: 800; text-decoration: none;">
+                <span style="color: #7c3aed;">◈</span>
+                <span style="background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">BONGO-CROWD</span>
+            </a>
+            <div style="display: flex; gap: 2rem;">
+                <a href="/admin/dashboard" style="color: #a1a1aa; text-decoration: none;">Dashboard</a>
+                <a href="/admin/companies" style="color: #7c3aed; text-decoration: none; font-weight: 600;">Companies</a>
+                <a href="/admin/programs" style="color: #a1a1aa; text-decoration: none;">Programs</a>
+                <a href="/admin/users" style="color: #a1a1aa; text-decoration: none;">Users</a>
+                <a href="/auth/logout" style="color: #ef4444; text-decoration: none;">Logout</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="admin-container">
+        
+        <% if (success.length > 0) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        
+        <% if (error.length > 0) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+        
+        <h1 class="admin-title"><i class="fas fa-clock"></i> Pending Company Approvals</h1>
+        
+        <% if (companies.length > 0) { %>
+            <div class="pending-grid">
+                <% companies.forEach(company => { %>
+                    <div class="company-card">
+                        <div class="company-header">
+                            <div class="company-name"><%= company.name %></div>
+                            <span class="status-badge status-pending">Pending</span>
+                        </div>
+                        
+                        <div class="company-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Company Email</div>
+                                <div class="detail-value"><%= company.email %></div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">Website</div>
+                                <div class="detail-value"><%= company.website || 'N/A' %></div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">Contact Person</div>
+                                <div class="detail-value"><%= company.contact_name %></div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">Contact Email</div>
+                                <div class="detail-value"><%= company.contact_email %></div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">Phone</div>
+                                <div class="detail-value"><%= company.contact_phone || 'N/A' %></div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">Submitted</div>
+                                <div class="detail-value"><%= new Date(company.created_at).toLocaleDateString() %></div>
+                            </div>
+                        </div>
+                        
+                        <% if (company.description) { %>
+                            <div style="margin: 1rem 0; color: #a1a1aa; font-size: 0.9rem;">
+                                <strong>Description:</strong> <%= company.description %>
+                            </div>
+                        <% } %>
+                        
+                        <div class="company-actions">
+                            <form action="/admin/companies/<%= company.id %>/approve" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-approve">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                            </form>
+                            
+                            <form action="/admin/companies/<%= company.id %>/reject" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-reject" onclick="return confirm('Reject this company?')">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <i class="fas fa-check-circle"></i>
+                <h3>No Pending Approvals</h3>
+                <p>All company registrations have been reviewed.</p>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>

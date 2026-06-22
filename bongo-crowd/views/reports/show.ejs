@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>#<%= report.report_id %> - <%= report.title %> | BongoCrowd</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- DOMPurify for XSS sanitization -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0f;
+            min-height: 100vh;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        /* Animated gradient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(120, 50, 220, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(50, 200, 220, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Glass card base */
+        .glass-card {
+            background: rgba(20, 20, 30, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.15);
+        }
+
+        /* Header section */
+        .report-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+
+        .report-id {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-family: monospace;
+        }
+
+        .report-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, #c4b5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .badges {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        /* Severity badges */
+        .badge {
+            padding: 0.375rem 0.875rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 1px solid;
+        }
+
+        .badge-critical {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+        }
+
+        .badge-high {
+            background: rgba(249, 115, 22, 0.15);
+            color: #f97316;
+            border-color: rgba(249, 115, 22, 0.4);
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.15);
+        }
+
+        .badge-medium {
+            background: rgba(234, 179, 8, 0.15);
+            color: #eab308;
+            border-color: rgba(234, 179, 8, 0.4);
+        }
+
+        .badge-low {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border-color: rgba(34, 197, 94, 0.4);
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        /* Status badges */
+        .badge-new {
+            background: rgba(139, 92, 246, 0.15);
+            color: #a78bfa;
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+
+        .badge-triaged {
+            background: rgba(6, 182, 212, 0.15);
+            color: #06b6d4;
+            border-color: rgba(6, 182, 212, 0.4);
+        }
+
+        .badge-resolved {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border-color: rgba(34, 197, 94, 0.4);
+        }
+
+        .badge-closed {
+            background: rgba(100, 116, 139, 0.15);
+            color: #64748b;
+            border-color: rgba(100, 116, 139, 0.4);
+        }
+
+        /* Info grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #64748b;
+            margin-bottom: 0.375rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: #e2e8f0;
+        }
+
+        .info-value a {
+            color: #a78bfa;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .info-value a:hover {
+            color: #c4b5fd;
+            text-decoration: underline;
+        }
+
+        .info-value.muted {
+            color: #94a3b8;
+        }
+
+        /* Vulnerability details */
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, #8b5cf6, #06b6d4);
+            border-radius: 2px;
+        }
+
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #a78bfa;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-content {
+            background: rgba(15, 15, 25, 0.6);
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #cbd5e1;
+            line-height: 1.7;
+        }
+
+        .detail-content.markdown-body {
+            font-size: 0.95rem;
+        }
+
+        .detail-content.markdown-body h1,
+        .detail-content.markdown-body h2,
+        .detail-content.markdown-body h3,
+        .detail-content.markdown-body h4,
+        .detail-content.markdown-body h5,
+        .detail-content.markdown-body h6 {
+            color: #f1f5f9;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .detail-content.markdown-body h1 {
+            font-size: 1.5rem;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+            padding-bottom: 0.5rem;
+        }
+
+        .detail-content.markdown-body h2 {
+            font-size: 1.25rem;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            padding-bottom: 0.4rem;
+        }
+
+        .detail-content.markdown-body h3 {
+            font-size: 1.1rem;
+        }
+
+        .detail-content.markdown-body p {
+            margin-bottom: 0.75rem;
+        }
+
+        .detail-content.markdown-body ul,
+        .detail-content.markdown-body ol {
+            margin-bottom: 0.75rem;
+            padding-left: 1.5rem;
+        }
+
+        .detail-content.markdown-body li {
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-content.markdown-body code {
+            background: rgba(139, 92, 246, 0.2);
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.875em;
+            color: #c4b5fd;
+        }
+
+        .detail-content.markdown-body pre {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .detail-content.markdown-body pre code {
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            color: #e2e8f0;
+            font-size: 0.875rem;
+        }
+
+        .detail-content.markdown-body blockquote {
+            border-left: 4px solid #8b5cf6;
+            margin: 0.75rem 0;
+            padding: 0.5rem 1rem;
+            background: rgba(139, 92, 246, 0.1);
+            color: #94a3b8;
+        }
+
+        .detail-content.markdown-body a {
+            color: #06b6d4;
+            text-decoration: none;
+        }
+
+        .detail-content.markdown-body a:hover {
+            text-decoration: underline;
+        }
+
+        .detail-content.markdown-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0.75rem;
+        }
+
+        .detail-content.markdown-body th,
+        .detail-content.markdown-body td {
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 0.5rem;
+            text-align: left;
+        }
+
+        .detail-content.markdown-body th {
+            background: rgba(139, 92, 246, 0.2);
+            font-weight: 600;
+        }
+
+        .detail-content.markdown-body tr:nth-child(even) {
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .detail-content.markdown-body img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .detail-content.markdown-body hr {
+            border: none;
+            border-top: 1px solid rgba(139, 92, 246, 0.3);
+            margin: 1.5rem 0;
+        }
+
+        /* Fallback for non-markdown content */
+        .detail-content pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.875rem;
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .detail-content code {
+            background: rgba(139, 92, 246, 0.2);
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875em;
+            color: #c4b5fd;
+        }
+
+        /* Syntax Highlighting */
+        .hljs {
+            background: transparent !important;
+        }
+
+        /* Bounty section */
+        .bounty-card {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .bounty-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .bounty-label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+
+        /* Attachments section */
+        .attachment-count {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 400;
+        }
+
+        .attachments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .attachment-item {
+            background: rgba(15, 15, 25, 0.6);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .attachment-item:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.15);
+        }
+
+        .attachment-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 140px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #a78bfa;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .attachment-preview:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .attachment-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pdf-preview {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .pdf-preview:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .pdf-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+        }
+
+        .video-preview {
+            background: rgba(6, 182, 212, 0.1);
+            color: #06b6d4;
+        }
+
+        .video-preview:hover {
+            background: rgba(6, 182, 212, 0.2);
+        }
+
+        .video-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+        }
+
+        .file-preview {
+            color: #94a3b8;
+        }
+
+        .file-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+        }
+
+        .attachment-info {
+            padding: 0.75rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .attachment-name {
+            font-size: 0.875rem;
+            color: #e2e8f0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .attachment-size {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .attachment-download {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 32px;
+            height: 32px;
+            background: rgba(15, 15, 25, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            color: #a78bfa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .attachment-download:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: #8b5cf6;
+            color: #c4b5fd;
+        }
+
+        /* Comments section */
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .comment {
+            background: rgba(15, 15, 25, 0.5);
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .comment-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .author-name {
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .author-role {
+            font-size: 0.625rem;
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .role-researcher {
+            background: rgba(139, 92, 246, 0.2);
+            color: #a78bfa;
+        }
+
+        .role-admin {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .role-company {
+            background: rgba(6, 182, 212, 0.2);
+            color: #06b6d4;
+        }
+
+        .role-internal {
+            background: rgba(234, 179, 8, 0.2);
+            color: #eab308;
+        }
+
+        .comment-date {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .comment-content {
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .comment-content p {
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Comment form */
+        .comment-form {
+            margin-top: 1.5rem;
+        }
+
+        .comment-textarea {
+            width: 100%;
+            background: rgba(15, 15, 25, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            color: #e2e8f0;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.2s;
+        }
+
+        .comment-textarea:focus {
+            outline: none;
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .comment-textarea::placeholder {
+            color: #64748b;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-success {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-success:hover {
+            background: rgba(34, 197, 94, 0.25);
+        }
+
+        /* Admin actions */
+        .admin-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .admin-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #ef4444;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Back link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #e2e8f0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .report-title {
+                font-size: 1.375rem;
+            }
+
+            .report-header {
+                flex-direction: column;
+            }
+
+            .badges {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back link -->
+        <a href="/reports" class="back-link">
+            ← Back to Reports
+        </a>
+
+        <!-- Report Header -->
+        <div class="glass-card">
+            <div class="report-header">
+                <div>
+                    <div class="report-id">#<%= report.report_id %></div>
+                    <h1 class="report-title"><%= report.title %></h1>
+                </div>
+                <div class="badges">
+                    <span class="badge badge-<%= report.severity.toLowerCase() %>">
+                        <%= report.severity %>
+                    </span>
+                    <span class="badge badge-<%= report.status.toLowerCase().replace(/\s+/g, '-') %>">
+                        <%= report.status %>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Program & Researcher Info -->
+        <div class="glass-card">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Program</span>
+                    <span class="info-value">
+                        <a href="/programs/<%= report.program_slug %>">
+                            <%= report.program_name %>
+                        </a>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Researcher</span>
+                    <span class="info-value"><%= report.researcher_name %></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Submitted</span>
+                    <span class="info-value muted">
+                        <%= new Date(report.created_at).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }) %>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Vulnerability Type</span>
+                    <span class="info-value"><%= report.vulnerability_type %></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vulnerability Details -->
+        <div class="glass-card">
+            <h2 class="section-title">Vulnerability Details</h2>
+            
+            <% if (report.description) { %>
+            <div class="detail-section">
+                <div class="detail-label">Description</div>
+                <div class="detail-content markdown-body" data-markdown-field="description">
+                    <%= report.description %>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (report.impact) { %>
+            <div class="detail-section">
+                <div class="detail-label">Impact</div>
+                <div class="detail-content markdown-body" data-markdown-field="impact">
+                    <%= report.impact %>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (report.reproduction_steps) { %>
+            <div class="detail-section">
+                <div class="detail-label">Reproduction Steps</div>
+                <div class="detail-content markdown-body" data-markdown-field="reproduction_steps">
+                    <%= report.reproduction_steps %>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (report.proof_of_concept) { %>
+            <div class="detail-section">
+                <div class="detail-label">Proof of Concept</div>
+                <div class="detail-content markdown-body" data-markdown-field="proof_of_concept">
+                    <%= report.proof_of_concept %>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (report.attachments && report.attachments.length > 0) { %>
+            <div class="detail-section">
+                <div class="detail-label">Attachments <span class="attachment-count">(<%= report.attachments.length %>)</span></div>
+                <div class="attachments-grid">
+                    <% report.attachments.forEach(function(attachment) { %>
+                    <div class="attachment-item">
+                        <% if (attachment.mimetype && attachment.mimetype.startsWith('image/')) { %>
+                        <a href="/uploads/reports/<%= attachment.filename %>" target="_blank" class="attachment-preview">
+                            <img src="/uploads/reports/<%= attachment.filename %>" alt="<%= attachment.originalname %>" class="attachment-image">
+                        </a>
+                        <% } else if (attachment.mimetype === 'application/pdf') { %>
+                        <a href="/uploads/reports/<%= attachment.filename %>" target="_blank" class="attachment-preview pdf-preview">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            <span class="pdf-label">PDF</span>
+                        </a>
+                        <% } else if (attachment.mimetype && attachment.mimetype.startsWith('video/')) { %>
+                        <a href="/uploads/reports/<%= attachment.filename %>" target="_blank" class="attachment-preview video-preview">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                                <line x1="7" y1="2" x2="7" y2="22"></line>
+                                <line x1="17" y1="2" x2="17" y2="22"></line>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                <line x1="2" y1="7" x2="7" y2="7"></line>
+                                <line x1="2" y1="17" x2="7" y2="17"></line>
+                                <line x1="17" y1="17" x2="22" y2="17"></line>
+                                <line x1="17" y1="7" x2="22" y2="7"></line>
+                            </svg>
+                            <span class="video-label">VIDEO</span>
+                        </a>
+                        <% } else { %>
+                        <a href="/uploads/reports/<%= attachment.filename %>" target="_blank" class="attachment-preview file-preview">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                                <polyline points="13 2 13 9 20 9"></polyline>
+                            </svg>
+                            <span class="file-label">FILE</span>
+                        </a>
+                        <% } %>
+                        <div class="attachment-info">
+                            <span class="attachment-name" title="<%= attachment.originalname %>"><%= attachment.originalname %></span>
+                            <span class="attachment-size"><%= Math.round(attachment.size / 1024) %> KB</span>
+                        </div>
+                        <a href="/uploads/reports/<%= attachment.filename %>" download="<%= attachment.originalname %>" class="attachment-download" title="Download">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                        </a>
+                    </div>
+                    <% }); %>
+                </div>
+            </div>
+            <% } %>
+        </div>
+
+        <!-- Bounty/Reward Section -->
+        <% if (report.bounty_amount || report.reward_amount) { %>
+        <div class="glass-card bounty-card">
+            <h2 class="section-title">Reward</h2>
+            <div class="info-grid">
+                <% if (report.bounty_amount) { %>
+                <div class="info-item">
+                    <span class="info-label">Bounty Amount</span>
+                    <span class="bounty-amount">$<%= report.bounty_amount.toLocaleString() %></span>
+                </div>
+                <% } %>
+                <% if (report.reward_amount) { %>
+                <div class="info-item">
+                    <span class="info-label">Reward Paid</span>
+                    <span class="bounty-amount">$<%= report.reward_amount.toLocaleString() %></span>
+                </div>
+                <% } %>
+            </div>
+        </div>
+        <% } %>
+
+        <!-- Comments Section -->
+        <div class="glass-card">
+            <h2 class="section-title">
+                Comments (<%= comments.length %>)
+            </h2>
+            
+            <% if (comments.length === 0) { %>
+                <div class="empty-state">
+                    <div class="empty-state-icon">💬</div>
+                    <p>No comments yet. Be the first to comment!</p>
+                </div>
+            <% } else { %>
+                <div class="comments-list">
+                    <% comments.forEach(comment => { %>
+                        <div class="comment <%= comment.is_internal ? 'internal' : '' %>">
+                            <div class="comment-header">
+                                <div class="comment-author">
+                                    <span class="author-name"><%= comment.author_name %></span>
+                                    <% if (comment.author_role) { %>
+                                        <span class="author-role role-<%= comment.author_role.toLowerCase() %>">
+                                            <%= comment.author_role %>
+                                        </span>
+                                    <% } %>
+                                    <% if (comment.is_internal) { %>
+                                        <span class="author-role role-internal">Internal</span>
+                                    <% } %>
+                                </div>
+                                <span class="comment-date">
+                                    <%= new Date(comment.created_at).toLocaleDateString('en-US', { 
+                                        month: 'short', 
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    }) %>
+                                </span>
+                            </div>
+                            <div class="comment-content">
+                                <%= comment.content %>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } %>
+
+            <!-- Comment Form -->
+            <% if (isResearcher || isAdmin || isCompany) { %>
+            <form class="comment-form" action="/reports/<%= report.report_id %>/comments" method="POST">
+                <textarea 
+                    name="content" 
+                    class="comment-textarea" 
+                    placeholder="Add a comment..."
+                    required
+                ></textarea>
+                
+                <% if (isAdmin || isCompany) { %>
+                <div style="margin-top: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="is_internal" name="is_internal" value="true">
+                    <label for="is_internal" style="color: #94a3b8; font-size: 0.875rem;">
+                        Mark as internal (only visible to company/admin)
+                    </label>
+                </div>
+                <% } %>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        Post Comment
+                    </button>
+                </div>
+            </form>
+            <% } else { %>
+            <div class="empty-state" style="margin-top: 1.5rem;">
+                <p>Sign in to add a comment</p>
+            </div>
+            <% } %>
+        </div>
+
+        <!-- Admin Actions -->
+        <% if (isAdmin) { %>
+        <div class="glass-card">
+            <div class="admin-title">
+                ⚡ Admin Actions
+            </div>
+            <div class="admin-actions">
+                <form action="/reports/<%= report.report_id %>/status" method="POST" style="display: inline;">
+                    <input type="hidden" name="status" value="Triaged">
+                    <button type="submit" class="btn btn-secondary">
+                        Mark as Triaged
+                    </button>
+                </form>
+                <form action="/reports/<%= report.report_id %>/status" method="POST" style="display: inline;">
+                    <input type="hidden" name="status" value="Resolved">
+                    <button type="submit" class="btn btn-success">
+                        Mark as Resolved
+                    </button>
+                </form>
+                <form action="/reports/<%= report.report_id %>/status" method="POST" style="display: inline;">
+                    <input type="hidden" name="status" value="Closed">
+                    <button type="submit" class="btn btn-secondary">
+                        Close Report
+                    </button>
+                </form>
+                <button class="btn btn-primary" onclick="showBountyModal()">
+                    Set Bounty
+                </button>
+                <form action="/reports/<%= report.report_id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this report?');">
+                    <button type="submit" class="btn btn-danger">
+                        Delete Report
+                    </button>
+                </form>
+            </div>
+        </div>
+        <% } %>
+    </div>
+
+    <script>
+        // Configure marked.js
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            headerIds: false,
+            sanitize: false
+        });
+
+        // DOMPurify configuration for XSS protection
+        const purifyConfig = {
+            ALLOWED_TAGS: [
+                'p', 'br', 'hr',
+                'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+                'strong', 'b', 'em', 'i', 'del', 's', 'strike',
+                'code', 'pre',
+                'ul', 'ol', 'li',
+                'blockquote',
+                'a', 'img',
+                'table', 'thead', 'tbody', 'tr', 'th', 'td'
+            ],
+            ALLOWED_ATTR: {
+                'a': ['href', 'title'],
+                'img': ['src', 'alt', 'title'],
+                'code': ['class'],
+                'pre': ['class']
+            },
+            ALLOWED_PROTOCOLS: ['http', 'https', 'mailto'],
+            FORBID_ATTR: ['style', 'onerror', 'onload', 'onclick'],
+            FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input']
+        };
+
+        // Render markdown content
+        document.querySelectorAll('[data-markdown-field]').forEach(element => {
+            const rawMarkdown = element.textContent.trim();
+            if (rawMarkdown) {
+                // Parse markdown to HTML
+                const html = marked.parse(rawMarkdown);
+                // Sanitize HTML to prevent XSS
+                const sanitizedHtml = DOMPurify.sanitize(html, purifyConfig);
+                // Update content
+                element.innerHTML = sanitizedHtml;
+                // Apply syntax highlighting to code blocks
+                element.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+                // Make external links open in new tab
+                element.querySelectorAll('a').forEach(link => {
+                    if (link.hostname !== window.location.hostname) {
+                        link.setAttribute('target', '_blank');
+                        link.setAttribute('rel', 'noopener noreferrer');
+                    }
+                });
+            }
+        });
+
+        function showBountyModal() {
+            const bounty = prompt('Enter bounty amount (USD):');
+            if (bounty && !isNaN(bounty)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/reports/<%= report.report_id %>/bounty';
+                
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'bounty_amount';
+                input.value = bounty;
+                
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

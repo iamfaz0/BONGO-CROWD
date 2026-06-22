@@ -1,0 +1,80 @@
+<div class="page-header">
+    <div class="container">
+        <h1>Search Results</h1>
+        <p>Find programs, hackers, and more</p>
+        
+        <form action="/search" method="GET" class="search-form">
+            <input type="text" name="q" value="<%= query %>" placeholder="Search..." class="search-input">
+            <select name="type" class="search-select">
+                <option value="all" <%= type === 'all' ? 'selected' : '' %>All</option>
+                <option value="programs" <%= type === 'programs' ? 'selected' : '' %>Programs</option>
+                <option value="hackers" <%= type === 'hackers' ? 'selected' : '' %>Hackers</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <% if (query) { %>
+        <% if (results.programs?.length) { %>
+            <h2>Programs</h2>
+            <div class="programs-grid">
+                <% results.programs.forEach(program => { %>
+                    <div class="program-card">
+                        <h3><%= program.name %></h3>
+                        <p><%= program.company_name %></p>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+        
+        <% if (results.hackers?.length) { %>
+            <h2>Hackers</h2>
+            <div class="hackers-grid">
+                <% results.hackers.forEach(hacker => { %>
+                    <div class="hacker-card">
+                        <h4>@<%= hacker.username %></h4>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+        
+        <% if (!results.programs?.length && !results.hackers?.length) { %>
+            <div class="empty-state">
+                <p>No results found for "<%= query %>"</p>
+            </div>
+        <% } %>
+    <% } else { %>
+        <div class="empty-state">
+            <p>Enter a search term to find programs and hackers</p>
+        </div>
+    <% } %>
+</div>
+
+<style>
+.search-form {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+    max-width: 800px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 14px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.search-select {
+    padding: 14px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+</style>

@@ -1,0 +1,353 @@
+<div class="dashboard-page">
+    <div class="container">
+        <header class="dashboard-header">
+            <div class="welcome-section">
+                <img src="<%= user.avatar_url || '/images/default-avatar.png' %>" alt="" class="welcome-avatar">
+                <div>
+                    <h1>Welcome back, <%= user.display_name || user.username %>! 👋</h1>
+                    <p>Here's what's happening with your account</p>
+                </div>
+            </div>
+            
+            <a href="/reports/submit" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Submit Report
+            </a>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-bug"></i></div>
+                <div class="stat-details">
+                    <span class="stat-number"><%= stats?.total_reports || 0 %></span>
+                    <span class="stat-label">Total Reports</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon success"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-details">
+                    <span class="stat-number"><%= stats?.resolved || 0 %></span>
+                    <span class="stat-label">Resolved</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon warning"><i class="fas fa-clock"></i></div>
+                <div class="stat-details">
+                    <span class="stat-number"><%= stats?.accepted || 0 %></span>
+                    <span class="stat-label">Accepted</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon gold"><i class="fas fa-dollar-sign"></i></div>
+                <div class="stat-details">
+                    <span class="stat-number"><%= formatCurrency?.(stats?.total_earnings || 0) %></span>
+                    <span class="stat-label">Total Earnings</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="dashboard-grid">
+            <!-- Recent Reports -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Recent Reports</h3>
+                    <a href="/reports/my/reports" class="btn btn-sm">View All</a>
+                </div>
+                
+                <% if (recentActivity?.length) { %>
+                    <div class="reports-list">
+                        <% recentActivity.forEach(report => { %>
+                            <a href="/reports/<%= report.report_id %>" class="report-item">
+                                <div class="report-info">
+                                    <span class="report-id"><%= report.report_id %></span>
+                                    <span class="report-title"><%= report.title %></span>
+                                    <span class="report-program"><%= report.program_name %></span>
+                                </div>
+                                <span class="badge badge-<%= report.status %>"><%= report.status %></span>
+                            </a>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fas fa-bug"></i>
+                        <p>No reports submitted yet</p>
+                        <a href="/programs" class="btn btn-primary">Browse Programs</a>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Notifications -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Notifications</h3>
+                    <a href="/users/notifications" class="btn btn-sm">View All</a>
+                </div>
+                
+                <% if (notifications?.length) { %>
+                    <div class="notifications-list">
+                        <% notifications.forEach(notif => { %>
+                            <div class="notification-item <%= notif.is_read ? '' : 'unread' %>">
+                                <div class="notification-icon">
+                                    <i class="fas fa-<%= notif.type === 'report' ? 'bug' : 'bell' %>"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <span class="notification-title"><%= notif.title %></span>
+                                    <span class="notification-time"><%= timeAgo?.(notif.created_at) %></span>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fas fa-bell"></i>
+                        <p>No new notifications</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-page {
+    padding: 32px 0;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.welcome-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.welcome-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.welcome-section h1 {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+}
+
+.welcome-section p {
+    color: var(--text-light);
+}
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--primary);
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.stat-icon.success { background: var(--success); }
+.stat-icon.warning { background: var(--warning); }
+.stat-icon.gold { background: var(--gold); }
+
+.stat-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+.dashboard-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.card-header h3 {
+    font-size: 1rem;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.875rem;
+}
+
+.reports-list {
+    padding: 8px 0;
+}
+
+.report-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+}
+
+.report-item:last-child {
+    border-bottom: none;
+}
+
+.report-item:hover {
+    background: var(--bg-alt);
+}
+
+.report-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.report-id {
+    font-size: 0.75rem;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.report-title {
+    font-weight: 500;
+}
+
+.report-program {
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+
+.notifications-list {
+    padding: 8px 0;
+}
+
+.notification-item {
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item.unread {
+    background: #eff6ff;
+}
+
+.notification-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--bg-alt);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+}
+
+.notification-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.notification-title {
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-light);
+}
+
+.empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    margin-bottom: 16px;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+    
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+}
+</style>

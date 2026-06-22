@@ -1,0 +1,744 @@
+<div class="settings-page">
+    <div class="settings-container">
+        <aside class="settings-sidebar">
+            <h2><i class="fas fa-cog"></i> Settings</h2>
+            <nav class="settings-nav">
+                <a href="#profile" class="settings-nav-item <%= activeTab === 'profile' || !activeTab ? 'active' : '' %>" data-tab="profile">
+                    <i class="fas fa-user"></i> Profile
+                </a>
+                <a href="#security" class="settings-nav-item <%= activeTab === 'security' ? 'active' : '' %>" data-tab="security">
+                    <i class="fas fa-shield-alt"></i> Security
+                </a>
+                <a href="#notifications" class="settings-nav-item <%= activeTab === 'notifications' ? 'active' : '' %>" data-tab="notifications">
+                    <i class="fas fa-bell"></i> Notifications
+                </a>
+            </nav>
+        </aside>
+
+        <div class="settings-content">
+            <!-- Profile Tab -->
+            <div class="settings-panel <%= activeTab === 'profile' || !activeTab ? 'active' : '' %>" id="panel-profile">
+                <h1>Profile Settings</h1>
+                
+                <!-- Avatar Upload Section -->
+                <div class="avatar-section">
+                    <h3><i class="fas fa-camera"></i> Profile Picture</h3>
+                    
+                    <div class="avatar-preview-container">
+                        <div class="avatar-preview-wrapper">
+                            <% if (user.avatar_url) { %>
+                                <img src="<%= user.avatar_url %>" alt="<%= user.display_name || user.username %>" class="avatar-preview-image">
+                            <% } else { %>
+                                <div class="avatar-preview-placeholder">
+                                    <span><%= user.display_name?.charAt(0).toUpperCase() || user.username.charAt(0).toUpperCase() %></span>
+                                </div>
+                            <% } %>
+                        </div>
+                        
+                        <div class="avatar-actions">
+                            <form action="/users/settings/avatar" method="POST" enctype="multipart/form-data" class="avatar-upload-form" id="avatar-form">
+                                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                                <div class="avatar-file-input-wrapper">
+                                    <input type="file" name="avatar" id="avatar-input" accept="image/jpeg,image/png,image/gif" required>
+                                    <label for="avatar-input" class="btn btn-primary">
+                                        <i class="fas fa-upload"></i> Choose Image
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-secondary" id="upload-btn" disabled>
+                                    <i class="fas fa-cloud-upload-alt"></i> Upload
+                                </button>
+                            </form>
+                            
+                            <% if (user.avatar_url) { %>
+                                <form action="/users/settings/avatar/remove" method="POST" class="avatar-remove-form">
+                                    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove your avatar?')">
+                                        <i class="fas fa-trash-alt"></i> Remove Avatar
+                                    </button>
+                                </form>
+                            <% } %>
+                        </div>
+                    </div>
+                    
+                    <div class="avatar-info">
+                        <p><i class="fas fa-info-circle"></i> Recommended: Square image, at least 200x200 pixels</p>
+                        <p><i class="fas fa-file-image"></i> Allowed formats: JPG, PNG, GIF</p>
+                        <p><i class="fas fa-weight-hanging"></i> Max file size: 2MB</p>
+                    </div>
+                    
+                    <div class="avatar-drop-zone" id="drop-zone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & drop an image here or click to browse</p>
+                    </div>
+                </div>
+                
+                <form action="/users/settings/profile" method="POST" class="settings-form">
+                    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                    <div class="form-group">
+                        <label for="display_name">Display Name</label>
+                        <input type="text" id="display_name" name="display_name" value="<%= user.display_name || user.username %>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bio">Bio</label>
+                        <textarea id="bio" name="bio" rows="3" placeholder="Tell us about yourself..."><%= user.bio || '' %></textarea>
+                        <p class="form-hint">Maximum 500 characters</p>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" name="location" value="<%= user.location || '' %>" placeholder="City, Country">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="website">Website</label>
+                            <input type="url" id="website" name="website" value="<%= user.website || '' %>" placeholder="https://yourwebsite.com">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="twitter">Twitter</label>
+                            <input type="text" id="twitter" name="twitter" value="<%= user.twitter || '' %>" placeholder="@username">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="github">GitHub</label>
+                            <input type="text" id="github" name="github" value="<%= user.github || '' %>" placeholder="username">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Security Tab -->
+            <div class="settings-panel <%= activeTab === 'security' ? 'active' : '' %>" id="panel-security">
+                <h1>Security Settings</h1>
+                
+                <div class="settings-section">
+                    <h3><i class="fas fa-lock"></i> Change Password</h3>
+                    
+                    <form action="/users/settings/password" method="POST" class="settings-form">
+                        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                        <div class="form-group">
+                            <label for="current_password">Current Password</label>
+                            <input type="password" id="current_password" name="current_password" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new_password">New Password</label>
+                            <input type="password" id="new_password" name="new_password" required minlength="8">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm New Password</label>
+                            <input type="password" id="confirm_password" name="confirm_password" required>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-key"></i> Update Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="settings-section mt-xl">
+                    <h3><i class="fas fa-trash-alt"></i> Danger Zone</h3>
+                    <p class="text-muted">Once you delete your account, there is no going back.</p>
+                    <button type="button" class="btn btn-danger" onclick="if(confirm('Are you sure? This action cannot be undone.')) { document.getElementById('delete-account-form').submit(); }">
+                        <i class="fas fa-trash"></i> Delete Account
+                    </button>
+                    <form id="delete-account-form" action="/users/settings/delete" method="POST" style="display: none;">
+                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"></form>
+                </div>
+            </div>
+
+            <!-- Notifications Tab -->
+            <div class="settings-panel <%= activeTab === 'notifications' ? 'active' : '' %>" id="panel-notifications">
+                <h1>Notification Settings</h1>
+                
+                <form action="/users/settings/notifications" method="POST" class="settings-form">
+                    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                    <div class="toggle-group">
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="email_reports" value="true" <%= user.notifications?.email_reports !== false ? 'checked' : '' %>>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Report Updates</span>
+                        </label>
+                        <p class="form-hint">Receive emails when your reports are updated</p>
+                    </div>
+
+                    <div class="toggle-group">
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="email_bounties" value="true" <%= user.notifications?.email_bounties !== false ? 'checked' : '' %>>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Bounty Payments</span>
+                        </label>
+                        <p class="form-hint">Receive emails when you receive bounty payments</p>
+                    </div>
+
+                    <div class="toggle-group">
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="email_programs" value="true" <%= user.notifications?.email_programs !== false ? 'checked' : '' %>>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">New Programs</span>
+                        </label>
+                        <p class="form-hint">Receive emails about new bug bounty programs</p>
+                    </div>
+
+                    <div class="toggle-group">
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="email_news" value="true" <%= user.notifications?.email_news !== false ? 'checked' : '' %>>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">News & Updates</span>
+                        </label>
+                        <p class="form-hint">Receive platform news and feature updates</p>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Preferences
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.settings-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: var(--space-xl);
+}
+
+.settings-container {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: var(--space-xl);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.settings-sidebar {
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    padding: var(--space-xl);
+}
+
+.settings-sidebar h2 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: var(--space-lg);
+    color: var(--text-primary);
+}
+
+.settings-sidebar h2 i {
+    color: var(--hp-cyan);
+}
+
+.settings-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.settings-nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition: var(--transition-fast);
+}
+
+.settings-nav-item:hover,
+.settings-nav-item.active {
+    background: var(--glass);
+    color: var(--text-primary);
+}
+
+.settings-nav-item.active {
+    border-left: 3px solid var(--hp-cyan);
+}
+
+.settings-nav-item i {
+    width: 20px;
+    text-align: center;
+}
+
+.settings-content {
+    padding: var(--space-xl);
+}
+
+.settings-panel {
+    display: none;
+}
+
+.settings-panel.active {
+    display: block;
+}
+
+.settings-panel h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: var(--space-xl);
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.settings-form {
+    max-width: 600px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-lg);
+}
+
+.form-group {
+    margin-bottom: var(--space-lg);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--space-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    transition: var(--transition-fast);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--hp-purple);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.form-hint {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-top: var(--space-xs);
+}
+
+/* Avatar Section Styles */
+.avatar-section {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    margin-bottom: var(--space-xl);
+}
+
+.avatar-section h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: var(--space-lg);
+    color: var(--text-primary);
+}
+
+.avatar-section h3 i {
+    color: var(--hp-cyan);
+}
+
+.avatar-preview-container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xl);
+    margin-bottom: var(--space-lg);
+    flex-wrap: wrap;
+}
+
+.avatar-preview-wrapper {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid transparent;
+    background: linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+                var(--gradient-primary) border-box;
+    flex-shrink: 0;
+}
+
+.avatar-preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-preview-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-primary);
+}
+
+.avatar-preview-placeholder span {
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+}
+
+.avatar-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.avatar-upload-form {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+}
+
+.avatar-file-input-wrapper {
+    position: relative;
+}
+
+.avatar-file-input-wrapper input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.avatar-file-input-wrapper label {
+    margin: 0;
+}
+
+.avatar-file-input-wrapper input[type="file"]:focus + label {
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.3);
+}
+
+.avatar-info {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.avatar-info p {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-xs);
+}
+
+.avatar-info p:last-child {
+    margin-bottom: 0;
+}
+
+.avatar-info i {
+    color: var(--hp-cyan);
+    width: 16px;
+}
+
+.avatar-drop-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl);
+    text-align: center;
+    color: var(--text-muted);
+    transition: var(--transition-fast);
+    cursor: pointer;
+}
+
+.avatar-drop-zone:hover,
+.avatar-drop-zone.drag-over {
+    border-color: var(--hp-cyan);
+    background: rgba(6, 182, 212, 0.05);
+    color: var(--text-primary);
+}
+
+.avatar-drop-zone i {
+    font-size: 3rem;
+    margin-bottom: var(--space-md);
+    color: var(--hp-cyan);
+    opacity: 0.7;
+}
+
+.avatar-drop-zone p {
+    margin: 0;
+    font-size: 0.9375rem;
+}
+
+.toggle-group {
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.toggle-group:last-child {
+    border-bottom: none;
+}
+
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    cursor: pointer;
+}
+
+.toggle-switch input {
+    display: none;
+}
+
+.toggle-slider {
+    width: 48px;
+    height: 26px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-full);
+    position: relative;
+    transition: var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: var(--transition-fast);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: rgba(124, 58, 237, 0.3);
+    border-color: var(--hp-purple);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(22px);
+    background: var(--hp-cyan);
+}
+
+.toggle-label {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.settings-section {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+}
+
+.settings-section h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: var(--space-md);
+    color: var(--text-primary);
+}
+
+.settings-section h3 i {
+    color: var(--hp-cyan);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.mt-xl {
+    margin-top: var(--space-xl);
+}
+
+.form-actions {
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+    .settings-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .settings-sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .settings-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .avatar-preview-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .avatar-upload-form {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .avatar-upload-form .btn {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching
+    const navItems = document.querySelectorAll('.settings-nav-item');
+    const panels = document.querySelectorAll('.settings-panel');
+    
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const tab = this.dataset.tab;
+            
+            // Update active nav
+            navItems.forEach(n => n.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Show correct panel
+            panels.forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-' + tab).classList.add('active');
+            
+            // Update URL hash
+            window.location.hash = tab;
+        });
+    });
+    
+    // Handle hash on load
+    if (window.location.hash) {
+        const hash = window.location.hash.replace('#', '');
+        const navItem = document.querySelector(`[data-tab="${hash}"]`);
+        if (navItem) {
+            navItem.click();
+        }
+    }
+    
+    // Avatar upload functionality
+    const avatarInput = document.getElementById('avatar-input');
+    const uploadBtn = document.getElementById('upload-btn');
+    const dropZone = document.getElementById('drop-zone');
+    const avatarForm = document.getElementById('avatar-form');
+    
+    if (avatarInput && uploadBtn) {
+        // Enable upload button when file is selected
+        avatarInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                uploadBtn.disabled = false;
+                
+                // Preview the selected image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewWrapper = document.querySelector('.avatar-preview-wrapper');
+                    if (previewWrapper) {
+                        previewWrapper.innerHTML = `<img src="${e.target.result}" alt="Preview" class="avatar-preview-image">`;
+                    }
+                };
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                uploadBtn.disabled = true;
+            }
+        });
+        
+        // Drag and drop functionality
+        if (dropZone) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropZone.classList.add('drag-over');
+            }
+            
+            function unhighlight() {
+                dropZone.classList.remove('drag-over');
+            }
+            
+            dropZone.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files && files[0]) {
+                    avatarInput.files = files;
+                    avatarInput.dispatchEvent(new Event('change'));
+                }
+            }
+            
+            // Click drop zone to trigger file input
+            dropZone.addEventListener('click', function() {
+                avatarInput.click();
+            });
+        }
+    }
+});
+</script>

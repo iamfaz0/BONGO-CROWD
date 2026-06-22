@@ -1,0 +1,495 @@
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Manage Reports</h1>
+        <a href="/admin/dashboard" class="btn btn-secondary">← Back to Dashboard</a>
+    </div>
+    
+    <div class="admin-filters">
+        <form action="/admin/reports" method="GET" class="filter-form">
+            <select name="status" class="filter-select">
+                <option value="all" <%= filters?.status === 'all' ? 'selected' : '' %>>All Status</option>
+                <option value="submitted" <%= filters?.status === 'submitted' ? 'selected' : '' %>>Submitted</option>
+                <option value="triaged" <%= filters?.status === 'triaged' ? 'selected' : '' %>>Triaged</option>
+                <option value="resolved" <%= filters?.status === 'resolved' ? 'selected' : '' %>>Resolved</option>
+                <option value="closed" <%= filters?.status === 'closed' ? 'selected' : '' %>>Closed</option>
+            </select>
+            
+            <select name="severity" class="filter-select">
+                <option value="all" <%= filters?.severity === 'all' ? 'selected' : '' %>>All Severities</option>
+                <option value="critical" <%= filters?.severity === 'critical' ? 'selected' : '' %>>Critical</option>
+                <option value="high" <%= filters?.severity === 'high' ? 'selected' : '' %>>High</option>
+                <option value="medium" <%= filters?.severity === 'medium' ? 'selected' : '' %>>Medium</option>
+                <option value="low" <%= filters?.severity === 'low' ? 'selected' : '' %>>Low</option>
+            </select>
+            
+            <!-- Date Range Dropdown -->
+            <div class="date-dropdown-container">
+                <button type="button" class="date-dropdown-btn" id="date-dropdown-toggle">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="date-btn-text"><%= filters?.date_range ? getDateRangeLabel(filters.date_range) : 'Date Range' %></span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <input type="hidden" name="date_range" id="date_range_input" value="<%= filters?.date_range || '' %>">
+                
+                <div class="date-dropdown-menu" id="date-dropdown-menu">
+                    <div class="date-option <%= filters?.date_range === '' ? 'active' : '' %>" data-value="" data-label="All Time">
+                        <i class="fas fa-infinity"></i> All Time
+                    </div>
+                    <div class="date-option <%= filters?.date_range === '24h' ? 'active' : '' %>" data-value="24h" data-label="Last 24 Hours">
+                        <i class="fas fa-clock"></i> Last 24 Hours
+                    </div>
+                    <div class="date-option <%= filters?.date_range === '7d' ? 'active' : '' %>" data-value="7d" data-label="Last 7 Days">
+                        <i class="fas fa-calendar-week"></i> Last 7 Days
+                    </div>
+                    <div class="date-option <%= filters?.date_range === '30d' ? 'active' : '' %>" data-value="30d" data-label="Last 30 Days">
+                        <i class="fas fa-calendar-alt"></i> Last 30 Days
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </form>
+    </div>
+    
+    <div class="admin-table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Program</th>
+                    <th>Researcher</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Bounty</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% reports?.forEach(report => { %>
+                    <tr>
+                        <td><code><%= report.report_id %></code></td>
+                        <td><%= report.title %></td>
+                        <td><%= report.program_name %></td>
+                        <td>@<%= report.researcher_username %></td>
+                        <td>
+                            <span class="badge badge-severity-<%= report.severity %>"><%= report.severity %></span>
+                        </td>
+                        <td>
+                            <span class="badge badge-<%= report.status %>"><%= report.status %></span>
+                        </td>
+                        <td>
+                            <% if (report.bounty_amount) { %>
+                                <strong>$<%= report.bounty_amount %></strong>
+                            <% } else { %>
+                                <span class="text-muted">-</span>
+                            <% } %>
+                        </td>
+                        <td>
+                            <button onclick="toggleEdit(<%= report.id %>)" class="btn btn-sm btn-secondary">Edit</button>
+                        </td>
+                    </tr>
+                    <tr id="edit-row-<%= report.id %>" style="display: none;">
+                        <td colspan="8">
+                            <form action="/admin/reports/<%= report.id %>/update" method="POST" class="report-edit-form">
+                                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Status</label>
+                                        <select name="status" class="filter-select">
+                                            <option value="submitted">Submitted</option>
+                                            <option value="triaged">Triaged</option>
+                                            <option value="resolved">Resolved</option>
+                                            <option value="closed">Closed</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Severity</label>
+                                        <select name="severity" class="filter-select">
+                                            <option value="critical">Critical</option>
+                                            <option value="high">High</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="low">Low</option>
+                                            <option value="info">Info</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Bounty Amount ($)</label>
+                                        <input type="number" name="bounty_amount" placeholder="0.00" step="0.01" min="0">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Update Report</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function toggleEdit(id) {
+    const row = document.getElementById('edit-row-' + id);
+    row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+// Date dropdown functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const dateBtn = document.querySelector('.date-dropdown-btn');
+    const dateMenu = document.getElementById('date-dropdown-menu');
+    const dateInput = document.getElementById('date_range_input');
+    const dateBtnText = document.getElementById('date-btn-text');
+    
+    // Toggle dropdown
+    dateBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dateMenu.classList.toggle('active');
+    });
+    
+    // Select date option
+    document.querySelectorAll('.date-option').forEach(function(option) {
+        option.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const value = this.getAttribute('data-value');
+            const label = this.getAttribute('data-label');
+            
+            dateInput.value = value;
+            dateBtnText.textContent = label;
+            
+            // Update active class
+            document.querySelectorAll('.date-option').forEach(opt => opt.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Close dropdown
+            dateMenu.classList.remove('active');
+        });
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!document.querySelector('.date-dropdown-container').contains(e.target)) {
+            dateMenu.classList.remove('active');
+        }
+    });
+});
+</script>
+
+<style>
+/* Date Dropdown Styles */
+.date-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.date-dropdown-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    min-width: 160px;
+}
+
+.date-dropdown-btn:hover {
+    border-color: var(--hp-purple);
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.15);
+}
+
+.date-dropdown-btn i:first-child {
+    color: var(--hp-cyan);
+}
+
+.date-dropdown-btn .fa-chevron-down {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+}
+
+.date-dropdown-menu.active + .date-dropdown-btn .fa-chevron-down,
+.date-dropdown-menu.active ~ .date-dropdown-btn .fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+.date-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
+    min-width: 200px;
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-sm);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: var(--transition);
+    box-shadow: var(--shadow-lg), var(--glow-purple);
+    z-index: 100;
+}
+
+.date-dropdown-menu.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.date-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.date-option:hover {
+    background: var(--glass);
+    color: var(--text-primary);
+}
+
+.date-option.active {
+    background: rgba(124, 58, 237, 0.15);
+    color: var(--hp-cyan-light);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+}
+
+.date-option i {
+    width: 20px;
+    text-align: center;
+    color: var(--hp-cyan);
+}
+
+.date-option.active i {
+    color: var(--hp-cyan-light);
+}
+
+/* Admin Page Styles */
+.admin-container {
+    padding: var(--space-2xl);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2xl);
+}
+
+.admin-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.admin-filters {
+    margin-bottom: var(--space-xl);
+}
+
+.filter-form {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filter-select {
+    padding: 10px 16px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    cursor: pointer;
+    min-width: 140px;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--hp-purple);
+}
+
+.admin-table-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: var(--space-md) var(--space-lg);
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table th {
+    background: var(--bg-tertiary);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+}
+
+.admin-table tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table tr:hover td {
+    background: var(--glass);
+}
+
+.badge-severity-critical {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.badge-severity-high {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-severity-medium {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.badge-severity-low {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-severity-info {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.badge-submitted {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.badge-triaged {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-resolved {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-closed {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.report-edit-form {
+    background: var(--bg-tertiary);
+    padding: var(--space-xl);
+    border-radius: var(--radius);
+    margin: var(--space-md) 0;
+}
+
+.report-edit-form .form-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-lg);
+}
+
+.report-edit-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.report-edit-form label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.report-edit-form input {
+    padding: 10px 14px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+}
+
+code {
+    background: var(--bg-tertiary);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--hp-cyan-light);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+    .filter-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .date-dropdown-container,
+    .filter-select,
+    .date-dropdown-btn {
+        width: 100%;
+    }
+    
+    .report-edit-form .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-table-container {
+        overflow-x: auto;
+    }
+}
+</style>

@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - BongoCrowd</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0f0f1a;
+            min-height: 100vh;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding: 2rem;
+            background: rgba(124, 58, 237, 0.1);
+            border-radius: 16px;
+            border: 1px solid rgba(124, 58, 237, 0.2);
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        /* Layout */
+        .calculator-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 968px) {
+            .calculator-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Glassmorphism Cards */
+        .card {
+            background: rgba(30, 30, 50, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                        0 0 60px rgba(124, 58, 237, 0.1);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card h2::before {
+            content: '';
+            width: 4px;
+            height: 1.25rem;
+            background: linear-gradient(180deg, #7c3aed, #06b6d4);
+            border-radius: 2px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 0.5rem;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            background: rgba(15, 15, 26, 0.8);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            color: #f1f5f9;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2),
+                        0 0 20px rgba(124, 58, 237, 0.3);
+        }
+
+        select option {
+            background: #1e1e32;
+            color: #f1f5f9;
+        }
+
+        /* CVSS Slider */
+        .cvss-section {
+            margin-bottom: 2rem;
+        }
+
+        .cvss-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .cvss-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        .cvss-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #7c3aed;
+            text-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .cvss-slider-container {
+            position: relative;
+            padding: 1rem 0;
+        }
+
+        .cvss-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, 
+                #22c55e 0%, 
+                #22c55e 39%, 
+                #eab308 39%, 
+                #eab308 69%, 
+                #f97316 69%, 
+                #f97316 89%, 
+                #ef4444 89%, 
+                #ef4444 100%);
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .cvss-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #7c3aed;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.8),
+                        0 0 40px rgba(124, 58, 237, 0.4);
+            border: 3px solid #fff;
+            transition: transform 0.2s ease;
+        }
+
+        .cvss-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .cvss-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #7c3aed;
+            cursor: pointer;
+            border: 3px solid #fff;
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.8);
+        }
+
+        .cvss-marks {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        /* Impact Assessment */
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .impact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .impact-item {
+            background: rgba(15, 15, 26, 0.6);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .impact-item:hover {
+            border-color: rgba(124, 58, 237, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .impact-item label {
+            display: block;
+            font-size: 0.875rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+
+        .impact-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .impact-value.high { color: #ef4444; }
+        .impact-value.medium { color: #eab308; }
+        .impact-value.low { color: #22c55e; }
+        .impact-value.none { color: #64748b; }
+
+        /* Scope Selection */
+        .scope-options {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .scope-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .scope-option input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .scope-option label {
+            display: block;
+            background: rgba(15, 15, 26, 0.6);
+            border: 2px solid rgba(124, 58, 237, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .scope-option input:checked + label {
+            background: rgba(124, 58, 237, 0.2);
+            border-color: #7c3aed;
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+        }
+
+        .scope-option label:hover {
+            border-color: rgba(124, 58, 237, 0.5);
+        }
+
+        .scope-option .scope-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .scope-option .scope-text {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+
+        /* Severity Indicator */
+        .severity-indicator {
+            background: rgba(15, 15, 26, 0.8);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 2px solid;
+            transition: all 0.5s ease;
+        }
+
+        .severity-indicator.critical {
+            border-color: #ef4444;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.3);
+        }
+
+        .severity-indicator.high {
+            border-color: #f97316;
+            box-shadow: 0 0 30px rgba(249, 115, 22, 0.3);
+        }
+
+        .severity-indicator.medium {
+            border-color: #eab308;
+            box-shadow: 0 0 30px rgba(234, 179, 8, 0.3);
+        }
+
+        .severity-indicator.low {
+            border-color: #22c55e;
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
+        }
+
+        .severity-indicator.info {
+            border-color: #3b82f6;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .severity-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            display: block;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .severity-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .severity-indicator.critical .severity-name { color: #ef4444; }
+        .severity-indicator.high .severity-name { color: #f97316; }
+        .severity-indicator.medium .severity-name { color: #eab308; }
+        .severity-indicator.low .severity-name { color: #22c55e; }
+        .severity-indicator.info .severity-name { color: #3b82f6; }
+
+        .severity-range {
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        /* Bounty Display */
+        .bounty-display {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 2px solid rgba(124, 58, 237, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bounty-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.05) 50%,
+                transparent 70%
+            );
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .bounty-label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .bounty-amount {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+            transition: all 0.5s ease;
+        }
+
+        .bounty-amount.calculating {
+            animation: calculating 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes calculating {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
+
+        .bounty-range {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Severity Matrix Table */
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .matrix-table th {
+            background: rgba(124, 58, 237, 0.2);
+            padding: 0.875rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #f1f5f9;
+            font-size: 0.875rem;
+            border-bottom: 2px solid rgba(124, 58, 237, 0.3);
+        }
+
+        .matrix-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+            font-size: 0.875rem;
+        }
+
+        .matrix-table tr:hover td {
+            background: rgba(124, 58, 237, 0.1);
+        }
+
+        .severity-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .severity-badge.critical { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .severity-badge.high { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+        .severity-badge.medium { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+        .severity-badge.low { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .severity-badge.info { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+
+        .bounty-range-cell {
+            font-weight: 600;
+            color: #06b6d4;
+        }
+
+        /* CVSS Vector Builder */
+        .vector-builder {
+            background: rgba(15, 15, 26, 0.8);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .vector-display {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.875rem;
+            color: #c4b5fd;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: rgba(124, 58, 237, 0.2);
+            border: 1px solid rgba(124, 58, 237, 0.4);
+            color: #c4b5fd;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: rgba(124, 58, 237, 0.4);
+        }
+
+        .copy-btn.copied {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .page-header {
+                padding: 1.5rem;
+            }
+
+            .page-header h1 {
+                font-size: 1.75rem;
+            }
+
+            .bounty-amount {
+                font-size: 2.5rem;
+            }
+
+            .scope-options {
+                flex-direction: column;
+            }
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+
+        .disclaimer strong {
+            color: #eab308;
+        }
+
+        /* Program Select */
+        .program-section {
+            margin-bottom: 2rem;
+        }
+
+        .program-reward-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            color: #06b6d4;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1>💰 Bounty Calculator</h1>
+            <p>Calculate estimated bounty rewards based on CVSS score and severity</p>
+        </div>
+
+        <div class="calculator-layout">
+            <!-- Left Column: Calculator -->
+            <div class="calculator-column">
+                <div class="card">
+                    <h2>Calculate Your Bounty</h2>
+
+                    <!-- Program Selection -->
+                    <div class="form-group program-section">
+                        <label for="programSelect">Target Program (Optional)</label>
+                        <select id="programSelect">
+                            <option value="">Global Bounty Range</option>
+                            <% if (programs && programs.length > 0) { %>
+                                <% programs.forEach(program => { %>
+                                    <option value="<%= program.id %>" 
+                                            data-critical-min="<%= program.critical_reward_min %>"
+                                            data-critical-max="<%= program.critical_reward_max %>"
+                                            data-high-min="<%= program.high_reward_min %>"
+                                            data-high-max="<%= program.high_reward_max %>"
+                                            data-medium-min="<%= program.medium_reward_min %>"
+                                            data-medium-max="<%= program.medium_reward_max %>"
+                                            data-low-min="<%= program.low_reward_min %>"
+                                            data-low-max="<%= program.low_reward_max %>"
+                                            data-company="<%= program.company_name %>">
+                                        <%= program.name %>
+                                    </option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                        <div id="programRewardBadge" class="program-reward-badge" style="display: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                <path d="M2 17l10 5 10-5"></path>
+                                <path d="M2 12l10 5 10-5"></path>
+                            </svg>
+                            <span id="programRewardText"></span>
+                        </div>
+                    </div>
+
+                    <!-- Severity Indicator -->
+                    <div id="severityIndicator" class="severity-indicator info">
+                        <span id="severityIcon" class="severity-icon">ℹ️</span>
+                        <div id="severityName" class="severity-name">Informational</div>
+                        <div id="severityRange" class="severity-range">CVSS: 0.0</div>
+                    </div>
+
+                    <!-- Bounty Display -->
+                    <div class="bounty-display">
+                        <div class="bounty-label">Estimated Bounty</div>
+                        <div id="bountyAmount" class="bounty-amount">$0</div>
+                        <div id="bountyRange" class="bounty-range">Range: $0 - $0</div>
+                    </div>
+
+                    <!-- CVSS Slider -->
+                    <div class="cvss-section">
+                        <div class="cvss-header">
+                            <span class="cvss-label">CVSS Base Score</span>
+                            <span id="cvssValue" class="cvss-value">0.0</span>
+                        </div>
+                        <div class="cvss-slider-container">
+                            <input type="range" id="cvssSlider" class="cvss-slider" min="0" max="10" step="0.1" value="0">
+                            <div class="cvss-marks">
+                                <span>0</span>
+                                <span>Low</span>
+                                <span>Medium</span>
+                                <span>High</span>
+                                <span>10</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Impact Assessment -->
+                    <div class="form-group">
+                        <label>Impact Assessment</label>
+                        <div class="impact-grid">
+                            <div class="impact-item">
+                                <label>Confidentiality</label>
+                                <select id="confidentialityImpact">
+                                    <option value="N">None</option>
+                                    <option value="L">Low</option>
+                                    <option value="H">High</option>
+                                </select>
+                            </div>
+                            <div class="impact-item">
+                                <label>Integrity</label>
+                                <select id="integrityImpact">
+                                    <option value="N">None</option>
+                                    <option value="L">Low</option>
+                                    <option value="H">High</option>
+                                </select>
+                            </div>
+                            <div class="impact-item">
+                                <label>Availability</label>
+                                <select id="availabilityImpact">
+                                    <option value="N">None</option>
+                                    <option value="L">Low</option>
+                                    <option value="H">High</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scope Selection -->
+                    <div class="form-group">
+                        <label>Scope</label>
+                        <div class="scope-options">
+                            <div class="scope-option">
+                                <input type="radio" id="scopeUnchanged" name="scope" value="U" checked>
+                                <label for="scopeUnchanged">
+                                    <span class="scope-icon">🔒</span>
+                                    <span class="scope-text">Unchanged</span>
+                                </label>
+                            </div>
+                            <div class="scope-option">
+                                <input type="radio" id="scopeChanged" name="scope" value="C">
+                                <label for="scopeChanged">
+                                    <span class="scope-icon">🌐</span>
+                                    <span class="scope-text">Changed</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CVSS Vector -->
+                    <div class="vector-builder">
+                        <label>CVSS Vector String</label>
+                        <div id="cvssVector" class="vector-display">CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N</div>
+                        <button id="copyVectorBtn" class="copy-btn">Copy Vector</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Severity Matrix -->
+            <div class="matrix-column">
+                <div class="card">
+                    <h2>Severity Matrix</h2>
+                    
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th>Severity</th>
+                                <th>CVSS Range</th>
+                                <th>Bounty Range</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (severityMatrix && severityMatrix.length > 0) { %>
+                                <% severityMatrix.forEach(row => { %>
+                                    <tr data-severity="<%= row.severity %>">
+                                        <td>
+                                            <span class="severity-badge <%= row.severity %>">
+                                                <span><%= row.icon %></span>
+                                                <%= row.severity %>
+                                            </span>
+                                        </td>
+                                        <td><%= row.cvss_min %> - <%= row.cvss_max %></td>
+                                        <td class="bounty-range-cell">
+                                            $<%= parseInt(row.min_bounty).toLocaleString() %> - $<%= parseInt(row.max_bounty).toLocaleString() %>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } %>
+                        </tbody>
+                    </table>
+
+                    <div class="disclaimer">
+                        <strong>⚠️ Disclaimer:</strong><br>
+                        The bounty amounts shown are estimates based on our severity matrix. 
+                        Actual rewards may vary depending on the specific program, impact, 
+                        and quality of the report. Final bounty decisions are at the 
+                        discretion of the program owner.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        <!-- Severity matrix data from server -->
+        const severityMatrix = <%- JSON.stringify(severityMatrix || []) %>;
+        
+        // DOM elements
+        const cvssSlider = document.getElementById('cvssSlider');
+        const cvssValue = document.getElementById('cvssValue');
+        const severityIndicator = document.getElementById('severityIndicator');
+        const severityIcon = document.getElementById('severityIcon');
+        const severityName = document.getElementById('severityName');
+        const severityRange = document.getElementById('severityRange');
+        const bountyAmount = document.getElementById('bountyAmount');
+        const bountyRange = document.getElementById('bountyRange');
+        const programSelect = document.getElementById('programSelect');
+        const programRewardBadge = document.getElementById('programRewardBadge');
+        const programRewardText = document.getElementById('programRewardText');
+        const cvssVector = document.getElementById('cvssVector');
+        const copyVectorBtn = document.getElementById('copyVectorBtn');
+        
+        // Impact selectors
+        const confidentialityImpact = document.getElementById('confidentialityImpact');
+        const integrityImpact = document.getElementById('integrityImpact');
+        const availabilityImpact = document.getElementById('availabilityImpact');
+        const scopeOptions = document.querySelectorAll('input[name="scope"]');
+
+        // Severity mapping
+        const severityData = {
+            critical: { icon: '💀', name: 'Critical', color: '#ef4444' },
+            high: { icon: '🔥', name: 'High', color: '#f97316' },
+            medium: { icon: '⚡', name: 'Medium', color: '#eab308' },
+            low: { icon: '📝', name: 'Low', color: '#22c55e' },
+            info: { icon: 'ℹ️', name: 'Informational', color: '#3b82f6' }
+        };
+
+        // Get severity from CVSS score
+        function getSeverity(cvss) {
+            const score = parseFloat(cvss);
+            if (score >= 9.0) return 'critical';
+            if (score >= 7.0) return 'high';
+            if (score >= 4.0) return 'medium';
+            if (score >= 0.1) return 'low';
+            return 'info';
+        }
+
+        // Calculate CVSS score based on impact selections
+        function calculateCVSS() {
+            // Simplified CVSS calculation for demo
+            const c = confidentialityImpact.value === 'H' ? 0.56 : 
+                      confidentialityImpact.value === 'L' ? 0.22 : 0;
+            const i = integrityImpact.value === 'H' ? 0.56 : 
+                      integrityImpact.value === 'L' ? 0.22 : 0;
+            const a = availabilityImpact.value === 'H' ? 0.56 : 
+                      availabilityImpact.value === 'L' ? 0.22 : 0;
+            
+            const scope = document.querySelector('input[name="scope"]:checked').value;
+            const scopeMultiplier = scope === 'C' ? 1.1 : 1.0;
+            
+            // Simplified ISS calculation
+            const iss = 1 - ((1 - c) * (1 - i) * (1 - a));
+            const impact = scope === 'C' ? 
+                7.52 * (iss - 0.029) - 3.25 * Math.pow(iss - 0.02, 15) :
+                6.42 * iss;
+            
+            // Base exploitability score (simplified)
+            const exploitability = 3.9;
+            
+            let score = 0;
+            if (impact <= 0) {
+                score = 0;
+            } else {
+                score = Math.ceil((scopeMultiplier * (impact + exploitability)) * 10) / 10;
+            }
+            
+            return Math.min(score, 10.0);
+        }
+
+        // Update CVSS Vector String
+        function updateVectorString() {
+            const c = confidentialityImpact.value;
+            const i = integrityImpact.value;
+            const a = availabilityImpact.value;
+            const s = document.querySelector('input[name="scope"]:checked').value;
+            const av = 'N'; // Network
+            const ac = 'L'; // Low
+            const pr = 'N'; // None
+            const ui = 'N'; // None
+            
+            const vector = `CVSS:3.1/AV:${av}/AC:${ac}/PR:${pr}/UI:${ui}/S:${s}/C:${c}/I:${i}/A:${a}`;
+            cvssVector.textContent = vector;
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return '$' + Math.round(amount).toLocaleString();
+        }
+
+        // Get bounty range for current selection
+        function getBountyRange(severity) {
+            const selectedProgram = programSelect.options[programSelect.selectedIndex];
+            
+            if (selectedProgram && selectedProgram.value) {
+                // Check if program has custom ranges
+                const minBounty = selectedProgram.getAttribute(`data-${severity}-min`);
+                const maxBounty = selectedProgram.getAttribute(`data-${severity}-max`);
+                
+                if (minBounty && maxBounty && parseFloat(minBounty) > 0) {
+                    return { min: parseFloat(minBounty), max: parseFloat(maxBounty) };
+                }
+            }
+            
+            // Fall back to global severity matrix
+            const matrixRow = severityMatrix.find(row => row.severity === severity);
+            if (matrixRow) {
+                return { min: parseFloat(matrixRow.min_bounty), max: parseFloat(matrixRow.max_bounty) };
+            }
+            
+            return { min: 0, max: 0 };
+        }
+
+        // Update display
+        function updateDisplay() {
+            const cvss = parseFloat(cvssSlider.value);
+            const severity = getSeverity(cvss);
+            const data = severityData[severity];
+            const range = getBountyRange(severity);
+            
+            // Update CVSS value
+            cvssValue.textContent = cvss.toFixed(1);
+            cvssValue.style.color = data.color;
+            
+            // Update severity indicator
+            severityIndicator.className = `severity-indicator ${severity}`;
+            severityIcon.textContent = data.icon;
+            severityName.textContent = data.name;
+            severityName.style.color = data.color;
+            severityRange.textContent = `CVSS: ${cvss.toFixed(1)}`;
+            
+            // Update bounty display with animation
+            bountyAmount.classList.add('calculating');
+            
+            // Calculate estimated bounty (midpoint of range)
+            const estimatedBounty = (range.min + range.max) / 2;
+            
+            setTimeout(() => {
+                bountyAmount.classList.remove('calculating');
+                if (severity === 'info') {
+                    bountyAmount.textContent = 'Swag/Points';
+                    bountyRange.textContent = 'No monetary reward';
+                } else {
+                    bountyAmount.textContent = formatCurrency(estimatedBounty);
+                    bountyRange.textContent = `Range: ${formatCurrency(range.min)} - ${formatCurrency(range.max)}`;
+                }
+            }, 200);
+            
+            // Highlight active row in matrix
+            document.querySelectorAll('.matrix-table tr').forEach(row => {
+                row.style.background = '';
+                row.style.borderLeft = '';
+            });
+            const activeRow = document.querySelector(`.matrix-table tr[data-severity="${severity}"]`);
+            if (activeRow) {
+                activeRow.style.background = `${data.color}20`;
+                activeRow.style.borderLeft = `3px solid ${data.color}`;
+            }
+        }
+
+        // Update program badge
+        function updateProgramBadge() {
+            const selectedProgram = programSelect.options[programSelect.selectedIndex];
+            if (selectedProgram && selectedProgram.value) {
+                const company = selectedProgram.getAttribute('data-company');
+                programRewardText.textContent = `Program: ${company}`;
+                programRewardBadge.style.display = 'inline-flex';
+            } else {
+                programRewardBadge.style.display = 'none';
+            }
+            updateDisplay();
+        }
+
+        // Event listeners
+        cvssSlider.addEventListener('input', updateDisplay);
+        
+        confidentialityImpact.addEventListener('change', () => {
+            const newCvss = calculateCVSS();
+            cvssSlider.value = newCvss;
+            updateDisplay();
+            updateVectorString();
+        });
+        
+        integrityImpact.addEventListener('change', () => {
+            const newCvss = calculateCVSS();
+            cvssSlider.value = newCvss;
+            updateDisplay();
+            updateVectorString();
+        });
+        
+        availabilityImpact.addEventListener('change', () => {
+            const newCvss = calculateCVSS();
+            cvssSlider.value = newCvss;
+            updateDisplay();
+            updateVectorString();
+        });
+        
+        scopeOptions.forEach(option => {
+            option.addEventListener('change', () => {
+                const newCvss = calculateCVSS();
+                cvssSlider.value = newCvss;
+                updateDisplay();
+                updateVectorString();
+            });
+        });
+        
+        programSelect.addEventListener('change', updateProgramBadge);
+        
+        // Copy vector button
+        copyVectorBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(cvssVector.textContent).then(() => {
+                copyVectorBtn.textContent = 'Copied!';
+                copyVectorBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyVectorBtn.textContent = 'Copy Vector';
+                    copyVectorBtn.classList.remove('copied');
+                }, 2000);
+            });
+        });
+
+        // Initialize
+        updateDisplay();
+        updateVectorString();
+    </script>
+</body>
+</html>

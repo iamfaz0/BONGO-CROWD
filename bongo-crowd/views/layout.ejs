@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | <%= site.site_name || 'BONGO-CROWD' %></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css?v=hackenproof">
+    <link rel="stylesheet" href="/css/badges.css?v=hackenproof">
+    <%- style %>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <span class="logo-icon">◈</span>
+                <span class="logo-text"><%= site.site_name || 'BONGO-CROWD' %></span>
+            </a>
+
+            <div class="nav-search">
+                <form action="/search" method="GET">
+                    <input type="text" name="q" placeholder="Search programs, hackers..." autocomplete="off">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="/programs">Programs</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/company/register">For Companies</a></li>
+            </ul>
+
+            <div class="nav-auth">
+                <% if (user) { %>
+                    <div class="nav-user">
+                        <a href="/users/notifications" class="nav-icon">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge">3</span>
+                        </a>
+                        <div class="nav-dropdown">
+                            <button class="nav-dropdown-btn">
+                                <div class="nav-avatar">
+                                    <% if (user.avatar_url) { %>
+                                        <img src="<%= user.avatar_url %>" alt="<%= user.display_name || user.username %>">
+                                    <% } else { %>
+                                        <span><%= user.display_name?.charAt(0).toUpperCase() || user.username.charAt(0).toUpperCase() %></span>
+                                    <% } %>
+                                </div>
+                                <span><%= user.display_name || user.username %></span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="nav-dropdown-menu">
+                                <a href="/users/dashboard"><i class="fas fa-chart-line"></i> Dashboard</a>
+                                <a href="/users/profile/<%= user.username %>"><i class="fas fa-user"></i> Profile</a>
+                                <a href="/users/badges"><i class="fas fa-medal"></i> Badges & Reputation</a>
+                                <a href="/reports/my/reports"><i class="fas fa-bug"></i> My Reports</a>
+                                <a href="/users/settings"><i class="fas fa-cog"></i> Settings</a>
+                                <% if (user.role === 'admin') { %>
+                                    <hr>
+                                    <a href="/admin/dashboard"><i class="fas fa-shield-alt"></i> Admin Panel</a>
+                                <% } %>
+                                <hr>
+                                <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <a href="/auth/login" class="btn btn-ghost">Sign In</a>
+                    <a href="/auth/register" class="btn btn-primary">Get Started</a>
+                <% } %>
+            </div>
+
+            <button class="nav-mobile-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main>
+        <% if (error && error.length) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+        <% if (success && success.length) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        <% if (info && info.length) { %>
+            <div class="alert alert-info"><%= info %></div>
+        <% } %>
+
+        <%- body %>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/" class="footer-logo">
+                        <span class="logo-icon">◈</span>
+                        <span class="logo-text"><%= site.site_name || 'BONGO-CROWD' %></span>
+                    </a>
+                    <p>Tanzania's premier bug bounty platform. Connecting security researchers with organizations to build a safer digital ecosystem.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Platform</h4>
+                    <ul>
+                        <li><a href="/programs">Programs</a></li>
+                        <li><a href="/search?type=hackers">Hackers</a></li>
+                        <li><a href="/guidelines">Guidelines</a></li>
+                        <li><a href="/about">About</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">API Reference</a></li>
+                        <li><a href="#">Security</a></li>
+                        <li><a href="#">Status</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Responsible Disclosure</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; <%= new Date().getFullYear() %> <%= site.site_name || 'BONGO-CROWD' %>. <%= site.footer_text || 'Made with ❤️ in Tanzania' %></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.nav-mobile-btn')?.addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        // Dropdown toggle
+        document.querySelector('.nav-dropdown-btn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelector('.nav-dropdown-menu').classList.toggle('active');
+        });
+
+        document.addEventListener('click', () => {
+            document.querySelector('.nav-dropdown-menu')?.classList.remove('active');
+        });
+
+        // Auto-hide alerts
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+    </script>
+    <%- script %>
+</body>
+</html>

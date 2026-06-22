@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - <%= company.name %> - BONGO-CROWD</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: rgba(26, 26, 46, 0.8);
+            --border-color: rgba(124, 58, 237, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --accent-purple: #7c3aed;
+            --accent-cyan: #06b6d4;
+            --accent-purple-light: #8b5cf6;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(124, 58, 237, 0.15);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            border-left: 3px solid var(--accent-purple);
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+        }
+
+        .header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-title {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(124, 58, 237, 0.2);
+            border-color: var(--accent-purple);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.purple { background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(124, 58, 237, 0.1)); }
+        .stat-icon.cyan { background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(6, 182, 212, 0.1)); }
+        .stat-icon.green { background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1)); }
+        .stat-icon.orange { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1)); }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .chart-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chart-btn {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chart-btn:hover, .chart-btn.active {
+            background: rgba(124, 58, 237, 0.2);
+            border-color: var(--accent-purple);
+            color: var(--text-primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+        }
+
+        /* Programs Section */
+        .programs-section {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .program-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .program-card {
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .program-card:hover {
+            border-color: var(--accent-purple);
+            transform: translateY(-2px);
+        }
+
+        .program-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .program-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .status-paused {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .status-draft {
+            background: rgba(107, 114, 128, 0.2);
+            color: #9ca3af;
+        }
+
+        .status-closed {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .program-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .program-stat {
+            text-align: center;
+            padding: 0.5rem;
+            background: rgba(124, 58, 237, 0.05);
+            border-radius: 8px;
+        }
+
+        .program-stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-purple-light);
+        }
+
+        .program-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Tables */
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .tables-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .table-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .table-header {
+            margin-bottom: 1rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.875rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+        }
+
+        .data-table th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table td {
+            font-size: 0.875rem;
+        }
+
+        .data-table tr:hover td {
+            background: rgba(124, 58, 237, 0.05);
+        }
+
+        .severity-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .severity-critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .severity-high {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .severity-medium {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+        }
+
+        .severity-low {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+        }
+
+        .user-handle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Export Section */
+        .export-section {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .export-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .export-card {
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .export-card:hover {
+            background: rgba(124, 58, 237, 0.2);
+            border-color: var(--accent-purple);
+            transform: translateY(-2px);
+        }
+
+        .export-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .export-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .export-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <svg viewBox="0 0 24 24" width="28" height="28" style="fill: #7c3aed;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                BONGO-CROWD
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Company</div>
+                <a href="/companies/<%= company.id %>/dashboard" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    Dashboard
+                </a>
+                <a href="/companies/<%= company.id %>/analytics" class="nav-item active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                    Analytics
+                </a>
+                <a href="/companies/<%= company.id %>/programs" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    Programs
+                </a>
+                <a href="/companies/<%= company.id %>/reports" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+                    Reports
+                </a>
+                <a href="/companies/<%= company.id %>/settings" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Settings
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Account</div>
+                <a href="/users/profile" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Profile
+                </a>
+                <a href="/auth/logout" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1 class="header-title">Analytics Dashboard</h1>
+                <p class="header-subtitle"><%= company.name %> - Performance Overview</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon purple">📊</div>
+                    </div>
+                    <div class="stat-value"><%= stats.total_reports || 0 %></div>
+                    <div class="stat-label">Total Reports</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon cyan">💰</div>
+                    </div>
+                    <div class="stat-value">$<%= ((stats.total_bounties_paid || 0) / 1000).toFixed(1) %>k</div>
+                    <div class="stat-label">Total Bounties</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon green">✅</div>
+                    </div>
+                    <div class="stat-value"><%= stats.accepted_reports || 0 %></div>
+                    <div class="stat-label">Accepted Reports</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon orange">⏱️</div>
+                    </div>
+                    <div class="stat-value"><%= stats.avg_triage_hours ? parseFloat(stats.avg_triage_hours).toFixed(1) : 0 %>h</div>
+                    <div class="stat-label">Avg Triage Time</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon purple">👥</div>
+                    </div>
+                    <div class="stat-value"><%= stats.unique_researchers || 0 %></div>
+                    <div class="stat-label">Researchers</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon cyan">🎯</div>
+                    </div>
+                    <div class="stat-value"><%= stats.active_programs || 0 %></div>
+                    <div class="stat-label">Active Programs</div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <!-- Submissions Over Time -->
+                <div class="chart-card full-width">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Submissions Over Time</h3>
+                        <div class="chart-actions">
+                            <button class="chart-btn" data-period="7d">7D</button>
+                            <button class="chart-btn active" data-period="30d">30D</button>
+                            <button class="chart-btn" data-period="90d">90D</button>
+                            <button class="chart-btn" data-period="1y">1Y</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="submissionsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Severity Breakdown -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Severity Distribution</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="severityChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Vulnerability Types -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Vulnerability Types</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="vulnerabilityTypesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Monthly Bounties -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Monthly Bounty Payouts</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="bountyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Response Times -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Response Time Metrics</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="responseTimeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Programs Section -->
+            <div class="programs-section">
+                <div class="section-header">
+                    <h3 class="chart-title">Program Performance</h3>
+                </div>
+                <div class="program-cards">
+                    <% programStats.forEach(function(program) { %>
+                    <div class="program-card">
+                        <div class="program-header">
+                            <span class="program-name"><%= program.name %></span>
+                            <span class="status-badge status-<%= program.status %>"><%= program.status %></span>
+                        </div>
+                        <div class="program-stats">
+                            <div class="program-stat">
+                                <div class="program-stat-value"><%= program.total_reports || 0 %></div>
+                                <div class="program-stat-label">Reports</div>
+                            </div>
+                            <div class="program-stat">
+                                <div class="program-stat-value"><%= program.accepted_reports || 0 %></div>
+                                <div class="program-stat-label">Accepted</div>
+                            </div>
+                            <div class="program-stat">
+                                <div class="program-stat-value">$<%= (program.total_bounties || 0).toLocaleString() %></div>
+                                <div class="program-stat-label">Bounties</div>
+                            </div>
+                        </div>
+                    </div>
+                    <% }); %>
+                </div>
+            </div>
+
+            <!-- Tables Grid -->
+            <div class="tables-grid">
+                <!-- Top Researchers -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3 class="chart-title">🏆 Top Researchers</h3>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Researcher</th>
+                                <th>Reports</th>
+                                <th>Earned</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% topResearchers.forEach(function(researcher) { %>
+                            <tr>
+                                <td>
+                                    <div class="user-cell">
+                                        <img src="<%= researcher.avatar_url || '/images/default-avatar.png' %>" alt="" class="user-avatar">
+                                        <div class="user-info">
+                                            <span class="user-name"><%= researcher.display_name || researcher.username %></span>
+                                            <span class="user-handle">@<%= researcher.username %></span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><%= researcher.report_count || 0 %></td>
+                                <td>$<%= parseFloat(researcher.total_earned || 0).toLocaleString() %></td>
+                            </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3 class="chart-title">📊 Severity Breakdown</h3>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Severity</th>
+                                <th>Count</th>
+                                <th>Avg Bounty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="severity-badge severity-critical">Critical</span></td>
+                                <td><%= stats.critical_count || 0 %></td>
+                                <td>$<%= ((stats.total_bounties_paid || 0) / Math.max(stats.accepted_reports || 1, 1) * 1.5).toFixed(0) %></td>
+                            </tr>
+                            <tr>
+                                <td><span class="severity-badge severity-high">High</span></td>
+                                <td><%= stats.high_count || 0 %></td>
+                                <td>$<%= ((stats.total_bounties_paid || 0) / Math.max(stats.accepted_reports || 1, 1) * 1.0).toFixed(0) %></td>
+                            </tr>
+                            <tr>
+                                <td><span class="severity-badge severity-medium">Medium</span></td>
+                                <td><%= stats.medium_count || 0 %></td>
+                                <td>$<%= ((stats.total_bounties_paid || 0) / Math.max(stats.accepted_reports || 1, 1) * 0.6).toFixed(0) %></td>
+                            </tr>
+                            <tr>
+                                <td><span class="severity-badge severity-low">Low</span></td>
+                                <td><%= stats.low_count || 0 %></td>
+                                <td>$<%= ((stats.total_bounties_paid || 0) / Math.max(stats.accepted_reports || 1, 1) * 0.3).toFixed(0) %></td>
+                            </tr>
+                            <tr>
+                                <td><span class="severity-badge severity-info">Info</span></td>
+                                <td><%= stats.info_count || 0 %></td>
+                                <td>$0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Export Section -->
+            <div class="export-section">
+                <h3 class="chart-title">📥 Export Data</h3>
+                <div class="export-grid">
+                    <a href="/api/analytics/export/csv?reportType=reports&scope=company&companyId=<%= company.id %>" class="export-card">
+                        <div class="export-icon">📄</div>
+                        <div class="export-title">Export Reports</div>
+                        <div class="export-desc">Download all reports as CSV</div>
+                    </a>
+                    <a href="/api/analytics/export/csv?reportType=bounties&scope=company&companyId=<%= company.id %>" class="export-card">
+                        <div class="export-icon">💰</div>
+                        <div class="export-title">Export Bounties</div>
+                        <div class="export-desc">Download bounty payments as CSV</div>
+                    </a>
+                    <a href="/api/analytics/export/csv?reportType=metrics&scope=company&companyId=<%= company.id %>" class="export-card">
+                        <div class="export-icon">📊</div>
+                        <div class="export-title">Export Metrics</div>
+                        <div class="export-desc">Download company metrics as CSV</div>
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Chart.js default configuration
+        Chart.defaults.color = '#a0a0b0';
+        Chart.defaults.borderColor = 'rgba(124, 58, 237, 0.1)';
+        Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+        // Submissions Over Time Chart
+        const submissionsCtx = document.getElementById('submissionsChart').getContext('2d');
+        const submissionsData = <%- JSON.stringify(dailySubmissions) %>;
+        
+        new Chart(submissionsCtx, {
+            type: 'line',
+            data: {
+                labels: submissionsData.map(d => new Date(d.submission_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+                datasets: [
+                    {
+                        label: 'Total',
+                        data: submissionsData.map(d => d.submission_count),
+                        borderColor: '#7c3aed',
+                        backgroundColor: (ctx) => {
+                            const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
+                            gradient.addColorStop(0, 'rgba(124, 58, 237, 0.3)');
+                            gradient.addColorStop(1, 'rgba(124, 58, 237, 0.01)');
+                            return gradient;
+                        },
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Critical',
+                        data: submissionsData.map(d => d.critical_count),
+                        borderColor: '#ef4444',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'High',
+                        data: submissionsData.map(d => d.high_count),
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { color: '#ffffff' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(124, 58, 237, 0.1)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Severity Distribution Chart
+        const severityCtx = document.getElementById('severityChart').getContext('2d');
+        new Chart(severityCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Critical', 'High', 'Medium', 'Low', 'Info'],
+                datasets: [{
+                    data: [
+                        <%= stats.critical_count || 0 %>,
+                        <%= stats.high_count || 0 %>,
+                        <%= stats.medium_count || 0 %>,
+                        <%= stats.low_count || 0 %>,
+                        <%= stats.info_count || 0 %>
+                    ],
+                    backgroundColor: [
+                        '#ef4444',
+                        '#f59e0b',
+                        '#eab308',
+                        '#10b981',
+                        '#06b6d4'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#ffffff', padding: 20 }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // Vulnerability Types Chart
+        const vulnTypesCtx = document.getElementById('vulnerabilityTypesChart').getContext('2d');
+        const vulnTypesData = <%- JSON.stringify(vulnerabilityTypes) %>;
+        
+        new Chart(vulnTypesCtx, {
+            type: 'bar',
+            data: {
+                labels: vulnTypesData.slice(0, 5).map(v => 
+                    v.vulnerability_type.length > 15 ? v.vulnerability_type.substring(0, 15) + '...' : v.vulnerability_type
+                ),
+                datasets: [{
+                    label: 'Count',
+                    data: vulnTypesData.slice(0, 5).map(v => v.total_count),
+                    backgroundColor: [
+                        'rgba(124, 58, 237, 0.8)',
+                        'rgba(124, 58, 237, 0.6)',
+                        'rgba(124, 58, 237, 0.4)',
+                        'rgba(6, 182, 212, 0.6)',
+                        'rgba(6, 182, 212, 0.4)'
+                    ],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(124, 58, 237, 0.1)' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                }
+            }
+        });
+
+        // Monthly Bounty Payouts Chart
+        const bountyCtx = document.getElementById('bountyChart').getContext('2d');
+        const bountyData = <%- JSON.stringify(bountyTrends) %>;
+        
+        new Chart(bountyCtx, {
+            type: 'bar',
+            data: {
+                labels: bountyData.map(d => new Date(d.month).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })),
+                datasets: [{
+                    label: 'Total Bounties',
+                    data: bountyData.map(d => d.total_bounties),
+                    backgroundColor: 'rgba(6, 182, 212, 0.8)',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(124, 58, 237, 0.1)' },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + (value / 1000) + 'k';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Response Time Metrics Chart
+        const responseCtx = document.getElementById('responseTimeChart').getContext('2d');
+        const responseData = <%- JSON.stringify(responseTimes) %>;
+        
+        new Chart(responseCtx, {
+            type: 'line',
+            data: {
+                labels: responseData.map(d => new Date(d.month).toLocaleDateString('en-US', { month: 'short' })),
+                datasets: [
+                    {
+                        label: 'Triage (hrs)',
+                        data: responseData.map(d => d.avg_triage_hours ? parseFloat(d.avg_triage_hours).toFixed(1) : 0),
+                        borderColor: '#7c3aed',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Resolution (hrs)',
+                        data: responseData.map(d => d.avg_resolution_hours ? parseFloat(d.avg_resolution_hours).toFixed(1) : 0),
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { color: '#ffffff' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(124, 58, 237, 0.1)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Period toggle functionality
+        document.querySelectorAll('.chart-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                // In a real implementation, this would fetch new data
+            });
+        });
+    </script>
+</body>
+</html>

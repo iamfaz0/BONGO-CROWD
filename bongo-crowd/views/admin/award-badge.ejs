@@ -1,0 +1,265 @@
+<% title = 'Award Badge' %>
+
+<div class="admin-page">
+    <div class="admin-header">
+        <h1><i class="fas fa-medal"></i> Award Badge</h1>
+        <a href="/admin/users" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Users
+        </a>
+    </div>
+
+    <div class="user-info-card">
+        <div class="user-avatar">
+            <span><%= (user.display_name || user.username).charAt(0).toUpperCase() %></span>
+        </div>
+        <div class="user-details">
+            <span class="user-name"><%= user.display_name || user.username %></span>
+            <span class="user-username">@<%= user.username %></span>
+        </div>
+    </div>
+
+    <% if (badges.length === 0) { %>
+    <div class="empty-state">
+        <i class="fas fa-check-circle"></i>
+        <h3>All Badges Awarded</h3>
+        <p>This user has already earned all available badges!</p>
+        <a href="/admin/badges/create" class="btn btn-primary">Create New Badge</a>
+    </div>
+    <% } else { %>
+    <div class="badges-grid">
+        <% badges.forEach(badge => { %>
+        <form action="/admin/badges/<%= badge.id %>/award" method="POST" class="badge-card">
+            <input type="hidden" name="user_id" value="<%= user.id %>">
+            
+            <div class="badge-icon" style="background: linear-gradient(135deg, <%= badge.gradient_start %> 0%, <%= badge.gradient_end %> 100%)">
+                <%= badge.icon %>
+            </div>
+            
+            <div class="badge-content">
+                <h4><%= badge.name %></h4>
+                <p><%= badge.description %></p>
+                
+                <div class="badge-meta">
+                    <span class="badge-category <%= badge.category %>">
+                        <%= badge.category.charAt(0).toUpperCase() + badge.category.slice(1) %>
+                    </span>
+                    <span class="badge-rarity <%= badge.rarity %>">
+                        <%= badge.rarity.charAt(0).toUpperCase() + badge.rarity.slice(1) %>
+                    </span>
+                    <span class="badge-points">+<%= badge.points_reward %> pts</span>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-full">
+                <i class="fas fa-gift"></i> Award Badge
+            </button>
+        </form>
+        <% }) %>
+    </div>
+    <% } %>
+</div>
+
+<style>
+.admin-page {
+    padding: var(--space-xl);
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-header h1 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.user-info-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-xl);
+}
+
+.user-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+.user-username {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-lg);
+}
+
+.badge-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    transition: var(--transition);
+}
+
+.badge-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-4px);
+}
+
+.badge-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: var(--space-md);
+}
+
+.badge-content h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+}
+
+.badge-content p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+}
+
+.badge-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-md);
+}
+
+.badge-category,
+.badge-rarity {
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-category.skill {
+    background: rgba(124, 58, 237, 0.15);
+    color: #a78bfa;
+}
+
+.badge-category.achievement {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+}
+
+.badge-category.activity {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+}
+
+.badge-category.special {
+    background: rgba(236, 72, 153, 0.15);
+    color: #f472b6;
+}
+
+.badge-rarity.common {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+}
+
+.badge-rarity.rare {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+}
+
+.badge-rarity.epic {
+    background: rgba(139, 92, 246, 0.15);
+    color: #a78bfa;
+}
+
+.badge-rarity.legendary {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fbbf24;
+}
+
+.badge-points {
+    padding: 4px 10px;
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--success);
+    border-radius: var(--radius-full);
+    font-size: 0.6875rem;
+    font-weight: 600;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--space-3xl);
+    background: var(--bg-card);
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-xl);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: var(--success);
+    margin-bottom: var(--space-md);
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-sm);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-lg);
+}
+
+@media (max-width: 640px) {
+    .badges-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>

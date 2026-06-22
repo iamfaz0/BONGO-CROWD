@@ -1,0 +1,102 @@
+<div class="page-header">
+    <div class="container">
+        <h1>Bug Bounty Programs</h1>
+        <p>Browse active bug bounty programs and start hunting for vulnerabilities.</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="content-layout">
+        <!-- Sidebar Filters -->
+        <aside class="filters-sidebar">
+            <form action="/programs" method="GET">
+                <div class="filter-section">
+                    <h4>Scope</h4>
+                    <select name="scope" class="filter-select">
+                        <option value="all" <%= filters.scope === 'all' ? 'selected' : '' %>>All Scopes</option>
+                        <% scopes?.forEach(s => { %>
+                            <option value="<%= s.scope %>" <%= filters.scope === s.scope ? 'selected' : '' %>><%= s.scope %></option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="filter-section">
+                    <h4>Reward Range</h4>
+                    <div class="filter-inputs">
+                        <input type="number" name="min_reward" placeholder="Min $" value="<%= filters.min_reward || '' %>">
+                        <span>-</span>
+                        <input type="number" name="max_reward" placeholder="Max $" value="<%= filters.max_reward || '' %>">
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h4>Sort By</h4>
+                    <select name="sort" class="filter-select">
+                        <option value="newest" <%= filters.sort === 'newest' ? 'selected' : '' %>>Newest</option>
+                        <option value="highest-reward" <%= filters.sort === 'highest-reward' ? 'selected' : '' %>>Highest Reward</option>
+                        <option value="most-reports" <%= filters.sort === 'most-reports' ? 'selected' : '' %>>Most Reports</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Apply Filters</button>
+                <a href="/programs" class="btn btn-ghost btn-block">Clear Filters</a>
+            </form>
+        </aside>
+
+        <!-- Programs List -->
+        <div class="programs-content">
+            <div class="programs-list">
+                <% programs?.forEach(program => { %>
+                    <div class="program-item">
+                        <div class="program-item-header">
+                            <div class="program-item-title">
+                                <img src="<%= program.company_logo || '/images/default-company.png' %>" alt="" class="program-item-logo">
+                                <div>
+                                    <h3><a href="/programs/<%= program.slug %>"><%= program.name %></a></h3>
+                                    <p class="program-item-company"><%= program.company_name %></p>
+                                </div>
+                            </div>
+                            
+                            <div class="program-item-reward">
+                                <span class="reward-min"><%= formatCurrency(program.min_reward || 0) %></span>
+                                <span class="reward-separator">-</span>
+                                <span class="reward-max"><%= formatCurrency(program.max_reward || 0) %></span>
+                            </div>
+                        </div>
+
+                        <p class="program-item-desc"><%= program.short_description || program.description?.substring(0, 200) + '...' %></p>
+
+                        <div class="program-item-meta">
+                            <div class="program-item-tags">
+                                <% program.in_scope_domains?.slice(0, 3).forEach(scope => { %>
+                                    <span class="tag"><%= scope %></span>
+                                <% }) %>
+                                <% if (program.in_scope_domains?.length > 3) { %>
+                                    <span class="tag">+<%= program.in_scope_domains.length - 3 %> more</span>
+                                <% } %>
+                            </div>
+                            
+                            <div class="program-item-stats">
+                                <span><i class="fas fa-bug"></i> <%= program.total_reports || 0 %> reports</span>
+                                <span><i class="fas fa-check-circle"></i> <%= program.resolved_reports || 0 %> resolved</span>
+                            </div>
+                        </div>
+
+                        <div class="program-item-actions">
+                            <a href="/programs/<%= program.slug %>" class="btn btn-outline">View Details</a>
+                            <a href="/reports/submit?program=<%= program.id %>" class="btn btn-primary">Submit Report</a>
+                        </div>
+                    </div>
+                <% }) %>
+
+                <% if (!programs?.length) { %>
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>No programs found</h3>
+                        <p>Try adjusting your filters or check back later for new programs.</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | BONGO-CROWD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        :root {
+            --hp-purple: #7c3aed;
+            --hp-purple-light: #a78bfa;
+            --hp-cyan: #06b6d4;
+            --hp-cyan-light: #67e8f9;
+            --hp-dark: #0a0a0f;
+            --hp-card: #111118;
+            --hp-border: rgba(124, 58, 237, 0.15);
+            --hp-text: #e4e4e7;
+            --hp-text-muted: #71717a;
+            --hp-success: #10b981;
+            --hp-warning: #f59e0b;
+            --hp-danger: #ef4444;
+            --hp-gradient: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            --hp-glow: 0 0 30px rgba(124, 58, 237, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--hp-dark);
+            color: var(--hp-text);
+            min-height: 100vh;
+        }
+        
+        /* Navigation */
+        .navbar {
+            background: rgba(17, 17, 24, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--hp-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+        
+        .nav-logo-icon {
+            font-size: 2rem;
+            color: var(--hp-purple);
+            text-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+        }
+        
+        .nav-logo-text {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: var(--hp-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .nav-link {
+            color: var(--hp-text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: var(--hp-text);
+        }
+        
+        .nav-link.active {
+            color: var(--hp-cyan);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1.5rem;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--hp-cyan);
+            box-shadow: 0 0 10px var(--hp-cyan);
+        }
+        
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding-left: 2rem;
+            border-left: 1px solid var(--hp-border);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--hp-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .user-avatar:hover {
+            border-color: var(--hp-cyan);
+            box-shadow: var(--hp-glow);
+        }
+        
+        /* Main Container */
+        .dashboard-wrapper {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            background: var(--hp-card);
+            border: 1px solid var(--hp-border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--hp-purple), var(--hp-cyan), transparent);
+        }
+        
+        .hero-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .hero-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .hero-title span {
+            background: var(--hp-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-subtitle {
+            color: var(--hp-text-muted);
+            font-size: 1rem;
+        }
+        
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: var(--hp-gradient);
+            color: white;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid var(--hp-border);
+            color: var(--hp-text);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(124, 58, 237, 0.2);
+            border-color: var(--hp-purple);
+        }
+        
+        /* Stats Cards */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--hp-card);
+            border: 1px solid var(--hp-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            border-color: rgba(124, 58, 237, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--hp-gradient);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .stat-icon.purple {
+            background: rgba(124, 58, 237, 0.15);
+            color: var(--hp-purple-light);
+        }
+        
+        .stat-icon.cyan {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--hp-cyan-light);
+        }
+        
+        .stat-icon.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--hp-success);
+        }
+        
+        .stat-icon.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--hp-warning);
+        }
+        
+        .stat-trend {
+            font-size: 0.75rem;
+            color: var(--hp-success);
+            font-weight: 600;
+        }
+        
+        .stat-trend.down {
+            color: var(--hp-danger);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .stat-label {
+            color: var(--hp-text-muted);
+            font-size: 0.875rem;
+        }
+        
+        /* Main Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--hp-card);
+            border: 1px solid var(--hp-border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--hp-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .card-title i {
+            color: var(--hp-purple-light);
+        }
+        
+        .card-action {
+            color: var(--hp-cyan);
+            font-size: 0.875rem;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .card-action:hover {
+            gap: 0.75rem;
+            text-shadow: 0 0 10px var(--hp-cyan);
+        }
+        
+        .card-content {
+            padding: 1rem 0;
+        }
+        
+        /* Activity List */
+        .activity-list {
+            list-style: none;
+        }
+        
+        .activity-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--hp-border);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .activity-item:hover {
+            background: rgba(124, 58, 237, 0.05);
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .activity-icon.submitted {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+        
+        .activity-icon.accepted {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--hp-success);
+        }
+        
+        .activity-icon.reward {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--hp-warning);
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-meta {
+            font-size: 0.875rem;
+            color: var(--hp-text-muted);
+        }
+        
+        .activity-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .activity-status.new {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+        
+        .activity-status.triaged {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--hp-warning);
+        }
+        
+        .activity-status.resolved {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--hp-success);
+        }
+        
+        /* Programs Sidebar */
+        .program-list {
+            list-style: none;
+        }
+        
+        .program-item {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--hp-border);
+            transition: all 0.3s;
+        }
+        
+        .program-item:hover {
+            background: rgba(124, 58, 237, 0.05);
+        }
+        
+        .program-item:last-child {
+            border-bottom: none;
+        }
+        
+        .program-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        
+        .program-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .program-company {
+            font-size: 0.875rem;
+            color: var(--hp-text-muted);
+        }
+        
+        .program-bounty {
+            text-align: right;
+        }
+        
+        .bounty-range {
+            font-weight: 600;
+            color: var(--hp-success);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .bounty-label {
+            font-size: 0.75rem;
+            color: var(--hp-text-muted);
+        }
+        
+        .program-scope {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .scope-tag {
+            padding: 0.25rem 0.75rem;
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid var(--hp-border);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--hp-text-muted);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            padding: 3rem;
+            text-align: center;
+        }
+        
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: rgba(124, 58, 237, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--hp-purple-light);
+        }
+        
+        .empty-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-text {
+            color: var(--hp-text-muted);
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .quick-action {
+            background: var(--hp-card);
+            border: 1px solid var(--hp-border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-decoration: none;
+            color: var(--hp-text);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .quick-action:hover {
+            border-color: var(--hp-purple);
+            background: rgba(124, 58, 237, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .quick-action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--hp-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+        
+        .quick-action-text {
+            font-weight: 600;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .hero-actions {
+                width: 100%;
+                flex-direction: column;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <span class="nav-logo-icon">◈</span>
+                <span class="nav-logo-text">BONGO-CROWD</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link active">Dashboard</a>
+                <a href="/programs" class="nav-link">Programs</a>
+                <a href="/reports/submit" class="nav-link">Submit Report</a>
+                <a href="/leaderboard" class="nav-link">Leaderboard</a>
+            </div>
+            
+            <div class="nav-user">
+                <a href="/users/notifications" class="nav-link"><i class="fas fa-bell"></i></a>
+                <a href="/users/profile/<%= user.username %>" class="user-avatar">
+                    <%= user.display_name ? user.display_name.charAt(0).toUpperCase() : user.username.charAt(0).toUpperCase() %>
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="dashboard-wrapper">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <div>
+                    <h1 class="hero-title">Welcome back, <span><%= user.display_name || user.username %></span></h1>
+                    <p class="hero-subtitle">Ready to find some vulnerabilities? Here's your bug hunting dashboard.</p>
+                </div>
+                <div class="hero-actions">
+                    <a href="/reports/submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Submit Report
+                    </a>
+                    <a href="/programs" class="btn btn-secondary">
+                        <i class="fas fa-search"></i> Browse Programs
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats Section -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                </div>
+                <div class="stat-value"><%= stats.total_reports || 0 %></div>
+                <div class="stat-label">Total Reports</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="stat-value"><%= stats.valid_reports || 0 %></div>
+                <div class="stat-label">Valid Reports</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon cyan">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                </div>
+                <div class="stat-value">$<%= (stats.total_earned || 0).toLocaleString() %></div>
+                <div class="stat-label">Total Earnings</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon warning">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+                <div class="stat-value"><%= stats.pending_reports || 0 %></div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+        
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Main Column -->
+            <div class="main-column">
+                <!-- Recent Activity -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-bolt"></i> Recent Activity</h3>
+                        <a href="/reports/my-reports" class="card-action">View All <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div class="card-content">
+                        <% if (recentReports && recentReports.length > 0) { %>
+                            <ul class="activity-list">
+                                <% recentReports.forEach(report => { %>
+                                    <li class="activity-item">
+                                        <div class="activity-icon <%= report.status %>">
+                                            <i class="fas <%= report.status === 'resolved' ? 'fa-check' : report.status === 'triaged' ? 'fa-search' : 'fa-file' %>"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <div class="activity-title"><%= report.title %></div>
+                                            <div class="activity-meta"><%= report.program_name %> • <%= new Date(report.created_at).toLocaleDateString() %></div>
+                                        </div>
+                                        <span class="activity-status <%= report.status %>"><%= report.status %></span>
+                                    </li>
+                                <% }); %>
+                            </ul>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="fas fa-clipboard-list"></i>
+                                </div>
+                                <div class="empty-title">No Reports Yet</div>
+                                <p class="empty-text">Start your bug hunting journey by submitting your first report!</p>
+                                <a href="/reports/submit" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Submit First Report
+                                </a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a href="/programs" class="quick-action">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <span class="quick-action-text">Browse Programs</span>
+                    </a>
+                    <a href="/leaderboard" class="quick-action">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <span class="quick-action-text">View Leaderboard</span>
+                    </a>
+                    <a href="/users/profile/<%= user.username %>" class="quick-action">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span class="quick-action-text">My Profile</span>
+                    </a>
+                    <a href="/users/settings" class="quick-action">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <span class="quick-action-text">Settings</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Active Programs -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-rocket"></i> Active Programs</h3>
+                        <a href="/programs" class="card-action">See All <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div class="card-content">
+                        <% if (availablePrograms && availablePrograms.length > 0) { %>
+                            <ul class="program-list">
+                                <% availablePrograms.slice(0, 5).forEach(program => { %>
+                                    <li class="program-item">
+                                        <div class="program-header">
+                                            <div>
+                                                <div class="program-name"><%= program.name %></div>
+                                                <div class="program-company"><%= program.company_name %></div>
+                                            </div>
+                                            <div class="program-bounty">
+                                                <div class="bounty-range">$<%= (program.max_reward || 0).toLocaleString() %></div>
+                                                <div class="bounty-label">max</div>
+                                            </div>
+                                        </div>
+                                        <div class="program-scope">
+                                            <% if (program.scope) { %>
+                                                <% program.scope.split('\n').slice(0, 2).forEach(scope => { %>
+                                                    <span class="scope-tag"><%= scope %></span>
+                                                <% }); %>
+                                            <% } %>
+                                        </div>
+                                    </li>
+                                <% }); %>
+                            </ul>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="fas fa-rocket"></i>
+                                </div>
+                                <div class="empty-title">No Active Programs</div>
+                                <p class="empty-text">Check back later for new bug bounty programs!</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+                
+                <!-- Notifications -->
+                <% if (notifications && notifications.length > 0) { %>
+                    <div class="card" style="margin-top: 2rem;">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-bell"></i> Notifications</h3>
+                            <a href="/users/notifications" class="card-action">View All <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                        <div class="card-content">
+                            <ul class="activity-list">
+                                <% notifications.slice(0, 3).forEach(notif => { %>
+                                    <li class="activity-item">
+                                        <div class="activity-icon submitted">
+                                            <i class="fas fa-bell"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <div class="activity-title"><%= notif.message %></div>
+                                            <div class="activity-meta"><%= new Date(notif.created_at).toLocaleDateString() %></div>
+                                        </div>
+                                    </li>
+                                <% }); %>
+                            </ul>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

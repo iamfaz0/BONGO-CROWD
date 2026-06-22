@@ -1,0 +1,211 @@
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-header">
+            <a href="/" class="auth-logo">
+                <span class="logo-icon">◈</span>
+                <span class="logo-text">BONGO-CROWD</span>
+            </a>
+            <h1>Welcome back</h1>
+            <p>Sign in to your account to continue hunting</p>
+        </div>
+
+        <% if (error) { %>
+            <div class="alert alert-error" style="margin-bottom: var(--space-lg);"><%= error %></div>
+        <% } %>
+
+        <form action="/auth/login" method="POST" class="auth-form">
+            <div class="form-group">
+                <label class="form-label" for="email">Email address</label>
+                <input type="email" id="email" name="email" required placeholder="you@example.com" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password" class="form-input">
+            </div>
+
+            <div class="form-options">
+                <label class="checkbox" style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-secondary);">
+                    <input type="checkbox" name="remember" style="accent-color: var(--hp-purple);">
+                    <span>Remember me</span>
+                </label>
+                <a href="/auth/forgot" style="color: var(--hp-cyan-light); font-size: 0.875rem;">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">Sign In</button>
+        </form>
+
+        <div class="auth-divider">
+            <span>Or continue with</span>
+        </div>
+
+        <a href="/auth/google" class="btn btn-ghost btn-lg" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px;">
+            <i class="fab fa-google"></i>
+            Sign in with Google
+        </a>
+
+        <div class="auth-footer">
+            <p style="color: var(--text-muted);">Don't have an account? <a href="/auth/register" style="color: var(--hp-cyan-light); font-weight: 600;">Sign up</a></p>
+        </div>
+    </div>
+
+    <div class="auth-image">
+        <div class="auth-image-content">
+            <h2>Secure Tanzania's Digital Future</h2>
+            <p>Join thousands of security researchers making the web safer.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.auth-page {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    background: var(--bg-primary);
+}
+
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: var(--space-2xl);
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+}
+
+.auth-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: var(--space-xl);
+}
+
+.auth-logo .logo-icon,
+.auth-logo .logo-text {
+    background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 50%, #ec4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.auth-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: var(--space-sm);
+    color: var(--text-primary);
+}
+
+.auth-header p {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.auth-form {
+    margin-bottom: var(--space-lg);
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xl);
+    font-size: 0.875rem;
+}
+
+.auth-divider {
+    text-align: center;
+    margin: var(--space-xl) 0;
+    position: relative;
+}
+
+.auth-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.3), transparent);
+}
+
+.auth-divider span {
+    background: var(--bg-primary);
+    padding: 0 var(--space-md);
+    position: relative;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid rgba(124, 58, 237, 0.15);
+}
+
+.auth-image {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.3) 0%, rgba(6, 182, 212, 0.2) 100%),
+                url('/images/auth-bg.jpg') center/cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-image::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(124, 58, 237, 0.2) 0%, transparent 70%);
+}
+
+.auth-image-content {
+    max-width: 400px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-image-content h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: var(--space-md);
+    background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.auth-image-content p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.125rem;
+}
+
+@media (max-width: 768px) {
+    .auth-page {
+        grid-template-columns: 1fr;
+    }
+    
+    .auth-image {
+        display: none;
+    }
+    
+    .auth-container {
+        padding: var(--space-xl);
+    }
+}
+</style>

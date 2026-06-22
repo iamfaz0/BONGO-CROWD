@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | BONGO-CROWD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .form-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-card {
+            background: rgba(21, 21, 32, 0.8);
+            border: 1px solid rgba(124, 58, 237, 0.15);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #e4e4e7;
+            font-weight: 500;
+        }
+        
+        .form-label .required {
+            color: #ef4444;
+        }
+        
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(9, 9, 11, 0.5);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 8px;
+            color: #e4e4e7;
+            font-size: 1rem;
+        }
+        
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #7c3aed;
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-hint {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #71717a;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(124, 58, 237, 0.1);
+        }
+        
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            color: #7c3aed;
+        }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav style="background: rgba(21, 21, 32, 0.95); border-bottom: 1px solid rgba(124, 58, 237, 0.2); padding: 1rem 2rem;">
+        <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+            <a href="/" style="font-size: 1.5rem; font-weight: 800; text-decoration: none;">
+                <span style="color: #7c3aed;">◈</span>
+                <span style="background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">BONGO-CROWD</span>
+            </a>
+            <div style="display: flex; gap: 2rem;">
+                <a href="/admin/dashboard" style="color: #a1a1aa; text-decoration: none;">Dashboard</a>
+                <a href="/admin/companies" style="color: #a1a1aa; text-decoration: none;">Companies</a>
+                <a href="/admin/programs" style="color: #a1a1aa; text-decoration: none;">Programs</a>
+                <a href="/admin/users" style="color: #a1a1aa; text-decoration: none;">Users</a>
+                <a href="/auth/logout" style="color: #ef4444; text-decoration: none;">Logout</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="form-container">
+        <% if (error.length > 0) { %>
+            <div class="alert-error"><%= error %></div>
+        <% } %>
+        
+        <h1 class="form-title"><%= title %></h1>
+        
+        <div class="form-card">
+            <form action="<%= program ? '/admin/programs/' + program.id + '/edit' : '/admin/programs/new' %>" method="POST">
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        Company
+                        <span class="required">*</span>
+                    </label>
+                    <select name="company_id" class="form-select" required>
+                        <option value="">Select a company...</option>
+                        <% companies.forEach(company => { %>
+                            <option value="<%= company.id %>" <%= program && program.company_id == company.id ? 'selected' : '' %>>
+                                <%= company.name %>
+                            </option>
+                        <% }); %>
+                    </select>
+                    <p class="form-hint">Don't see your company? <a href="/admin/companies/new">Create one first</a>.</p>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        Program Name
+                        <span class="required">*</span>
+                    </label>
+                    <input type="text" name="name" class="form-input" 
+                           value="<%= program ? program.name : '' %>" 
+                           required placeholder="e.g., Public Bug Bounty Program">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-textarea" 
+                              placeholder="Describe your bug bounty program..."><%= program ? program.description : '' %></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Scope</label>
+                    <textarea name="scope" class="form-textarea" 
+                              placeholder="List in-scope domains, subdomains, and assets..."><%= program ? program.scope : '' %></textarea>
+                    <p class="form-hint">One item per line. Example: *.example.com, api.example.com</p>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Out of Scope</label>
+                    <textarea name="out_of_scope" class="form-textarea" 
+                              placeholder="List explicitly out-of-scope items..."><%= program ? program.out_of_scope : '' %></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Program Rules</label>
+                    <textarea name="rules" class="form-textarea" 
+                              placeholder="Rules and guidelines for researchers..."><%= program ? program.rules : '' %></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Minimum Bounty ($)</label>
+                        <input type="number" name="min_bounty" class="form-input" 
+                               value="<%= program ? program.min_reward : '100' %>" 
+                               min="0" placeholder="100">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Maximum Bounty ($)</label>
+                        <input type="number" name="max_bounty" class="form-input" 
+                               value="<%= program ? program.max_reward : '10000' %>" 
+                               min="0" placeholder="10000">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="draft" <%= program && program.status === 'draft' ? 'selected' : '' %>>Draft</option>
+                        <option value="active" <%= program && program.status === 'active' ? 'selected' : '' %>>Active</option>
+                        <option value="paused" <%= program && program.status === 'paused' ? 'selected' : '' %>>Paused</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        <%= program ? 'Update Program' : 'Create Program' %>
+                    </button>
+                    <a href="/admin/programs" class="btn btn-secondary">Cancel</a>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+    
+    
+</body>
+</html>

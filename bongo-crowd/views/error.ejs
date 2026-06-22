@@ -1,0 +1,12 @@
+<div class="container" style="padding: 100px 24px; text-align: center;">
+    <h1 style="font-size: 6rem; margin-bottom: 20px;">😕</h1>
+    <h2 style="font-size: 2rem; margin-bottom: 16px;">Something went wrong</h2>
+    <p style="color: var(--text-muted); margin-bottom: 32px;">
+        <% if (typeof message !== 'undefined' && message) { %>
+            <%= message %>
+        <% } else { %>
+            An unexpected error occurred. Please try again later.
+        <% } %>
+    </p>
+    <a href="/" class="btn btn-primary">Go Home</a>
+</div>

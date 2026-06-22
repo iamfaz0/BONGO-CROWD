@@ -1,0 +1,127 @@
+<div class="page-header">
+    <div class="container">
+        <h1>Contact Us</h1>
+        <p>Get in touch with the BONGO-CROWD team</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="contact-grid">
+        <div class="contact-info">
+            <h2>Get in Touch</h2>
+            
+            <div class="contact-item">
+                <i class="fas fa-envelope"></i>
+                <div>
+                    <strong>Email</strong>
+                    <p>support@bongo-crowd.com</p>
+                </div>
+            </div>
+            
+            <div class="contact-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <div>
+                    <strong>Location</strong>
+                    <p>Dar es Salaam, Tanzania</p>
+                </div>
+            </div>
+            
+            <div class="contact-item">
+                <i class="fas fa-phone"></i>
+                <div>
+                    <strong>Phone</strong>
+                    <p>+255 XXX XXX XXX</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="contact-form-wrapper">
+            <h2>Send a Message</h2>
+            
+            <form action="/contact" method="POST" class="contact-form">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea name="message" rows="5" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    padding: 60px 0;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.contact-info h2,
+.contact-form-wrapper h2 {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+}
+
+.contact-item i {
+    width: 48px;
+    height: 48px;
+    background: var(--primary);
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.contact-item strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+}
+
+.contact-item p {
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.contact-form-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 40px;
+}
+
+@media (max-width: 768px) {
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+}
+</style>

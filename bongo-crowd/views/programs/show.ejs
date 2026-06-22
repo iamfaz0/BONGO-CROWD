@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - BongoCrowd</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f0f1a;
+            color: #e2e8f0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Back link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #94a3b8;
+            text-decoration: none;
+            margin-bottom: 2rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #06b6d4;
+        }
+
+        .back-link svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Program Header Card */
+        .program-header {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(6, 182, 212, 0.1) 100%);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .program-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: flex-start;
+            gap: 2rem;
+        }
+
+        .program-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #252542 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #7c3aed;
+            border: 2px solid rgba(124, 58, 237, 0.3);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .program-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-info {
+            flex: 1;
+        }
+
+        .program-name {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #a78bfa 50%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+
+        .company-name {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+
+        .company-name span {
+            color: #06b6d4;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.active {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+        }
+
+        .status-badge.paused {
+            background: rgba(234, 179, 8, 0.15);
+            color: #eab308;
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+
+        .status-badge.closed {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-badge.active .status-dot {
+            background: #22c55e;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(124, 58, 237, 0.4);
+            box-shadow: 0 0 30px rgba(124, 58, 237, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value.reward {
+            background: linear-gradient(135deg, #7c3aed, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            margin-bottom: 1.5rem;
+        }
+
+        .glass-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-title svg {
+            width: 24px;
+            height: 24px;
+            color: #7c3aed;
+        }
+
+        .card-content {
+            color: #cbd5e1;
+            line-height: 1.8;
+        }
+
+        .card-content p {
+            margin-bottom: 1rem;
+        }
+
+        .card-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Scope Lists */
+        .scope-list {
+            list-style: none;
+        }
+
+        .scope-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .scope-list li:last-child {
+            border-bottom: none;
+        }
+
+        .scope-list li::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .scope-in li::before {
+            background: #22c55e;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+        }
+
+        .scope-out li::before {
+            background: #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        /* Rules Section */
+        .rules-content {
+            background: rgba(124, 58, 237, 0.05);
+            border-left: 3px solid #7c3aed;
+            border-radius: 0 12px 12px 0;
+            padding: 1.5rem;
+        }
+
+        .rules-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .rules-content li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .rules-content li::before {
+            content: '›';
+            position: absolute;
+            left: 0;
+            color: #06b6d4;
+            font-weight: bold;
+        }
+
+        /* Submit Button */
+        .submit-section {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .btn-submit {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.6), 0 0 40px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-submit svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .btn-submit:disabled {
+            background: #334155;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .rewards-card {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+        }
+
+        .reward-range {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1.5rem 0;
+        }
+
+        .reward-value {
+            text-align: center;
+        }
+
+        .reward-amount {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .reward-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .reward-separator {
+            font-size: 1.5rem;
+            color: #7c3aed;
+            font-weight: 300;
+        }
+
+        /* Meta Info */
+        .meta-list {
+            list-style: none;
+        }
+
+        .meta-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .meta-list li:last-child {
+            border-bottom: none;
+        }
+
+        .meta-label {
+            color: #94a3b8;
+        }
+
+        .meta-value {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            color: #64748b;
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        /* Glow Effects */
+        .glow-purple {
+            box-shadow: 0 0 40px rgba(124, 58, 237, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .program-header {
+                padding: 2rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .program-name {
+                font-size: 1.75rem;
+            }
+
+            .program-logo {
+                margin: 0 auto;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back Link -->
+        <a href="/programs" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Programs
+        </a>
+
+        <!-- Program Header -->
+        <div class="program-header">
+            <div class="header-content">
+                <div class="program-logo">
+                    <% if (program.logo_url) { %>
+                        <img src="<%= program.logo_url %>" alt="<%= program.name %>">
+                    <% } else { %>
+                        <%= program.name.charAt(0).toUpperCase() %>
+                    <% } %>
+                </div>
+                <div class="header-info">
+                    <h1 class="program-name"><%= program.name %></h1>
+                    <p class="company-name">by <span><%= program.company_name %></span></p>
+                    <div class="status-badge <%= program.status %>">
+                        <span class="status-dot"></span>
+                        <%= program.status %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value reward">$<%= program.min_reward ? program.min_reward.toLocaleString() : '0' %></div>
+                <div class="stat-label">Min Bounty</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value reward">$<%= program.max_reward ? program.max_reward.toLocaleString() : '0' %></div>
+                <div class="stat-label">Max Bounty</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><%= program.total_reports || 0 %></div>
+                <div class="stat-label">Total Reports</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">$<%= program.avg_bounty ? Math.round(program.avg_bounty).toLocaleString() : '0' %></div>
+                <div class="stat-label">Avg Bounty</div>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <div class="main-content">
+                <!-- Description -->
+                <div class="glass-card">
+                    <h2 class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        About This Program
+                    </h2>
+                    <div class="card-content">
+                        <% if (program.description) { %>
+                            <p><%= program.description %></p>
+                        <% } else { %>
+                            <p class="empty-state">No description available for this program.</p>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Scope -->
+                <div class="glass-card">
+                    <h2 class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        In Scope
+                    </h2>
+                    <div class="card-content">
+                        <% if (program.scope) { %>
+                            <ul class="scope-list scope-in">
+                                <% program.scope.split('\n').forEach(function(item) { %>
+                                    <% if (item.trim()) { %>
+                                        <li><%= item.trim() %></li>
+                                    <% } %>
+                                <% }); %>
+                            </ul>
+                        <% } else { %>
+                            <p class="empty-state">No scope defined.</p>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Out of Scope -->
+                <div class="glass-card">
+                    <h2 class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Out of Scope
+                    </h2>
+                    <div class="card-content">
+                        <% if (program.out_of_scope) { %>
+                            <ul class="scope-list scope-out">
+                                <% program.out_of_scope.split('\n').forEach(function(item) { %>
+                                    <% if (item.trim()) { %>
+                                        <li><%= item.trim() %></li>
+                                    <% } %>
+                                <% }); %>
+                            </ul>
+                        <% } else { %>
+                            <p class="empty-state">No out of scope items defined.</p>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Rules -->
+                <div class="glass-card">
+                    <h2 class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Program Rules
+                    </h2>
+                    <div class="card-content">
+                        <% if (program.rules) { %>
+                            <div class="rules-content">
+                                <ul>
+                                    <% program.rules.split('\n').forEach(function(rule) { %>
+                                        <% if (rule.trim()) { %>
+                                            <li><%= rule.trim() %></li>
+                                        <% } %>
+                                    <% }); %>
+                                </ul>
+                            </div>
+                        <% } else { %>
+                            <p class="empty-state">No specific rules defined. Follow standard responsible disclosure practices.</p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Rewards Card -->
+                <div class="glass-card rewards-card">
+                    <h2 class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Reward Range
+                    </h2>
+                    <div class="reward-range">
+                        <div class="reward-value">
+                            <div class="reward-amount">$<%= program.min_reward ? program.min_reward.toLocaleString() : '0' %></div>
+                            <div class="reward-label">Minimum</div>
+                        </div>
+                        <div class="reward-separator">—</div>
+                        <div class="reward-value">
+                            <div class="reward-amount">$<%= program.max_reward ? program.max_reward.toLocaleString() : '0' %></div>
+                            <div class="reward-label">Maximum</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Program Meta -->
+                <div class="glass-card">
+                    <h2 class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Program Info
+                    </h2>
+                    <ul class="meta-list">
+                        <li>
+                            <span class="meta-label">Program ID</span>
+                            <span class="meta-value">#<%= program.id || program.slug %></span>
+                        </li>
+                        <li>
+                            <span class="meta-label">Status</span>
+                            <span class="meta-value" style="text-transform: capitalize;"><%= program.status %></span>
+                        </li>
+                        <li>
+                            <span class="meta-label">Created</span>
+                            <span class="meta-value">
+                                <%= program.created_at ? new Date(program.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A' %>
+                            </span>
+                        </li>
+                        <li>
+                            <span class="meta-label">Total Reports</span>
+                            <span class="meta-value"><%= program.total_reports || 0 %></span>
+                        </li>
+                        <li>
+                            <span class="meta-label">Avg Bounty</span>
+                            <span class="meta-value">$<%= program.avg_bounty ? Math.round(program.avg_bounty).toLocaleString() : '0' %></span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Submit Button (if user is hacker and program is active) -->
+                <% if (user && user.role === 'hacker' && program.status === 'active') { %>
+                    <div class="glass-card submit-section">
+                        <a href="/programs/<%= program.slug %>/reports/new" class="btn-submit">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Submit Report
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

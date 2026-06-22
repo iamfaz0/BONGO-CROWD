@@ -1,0 +1,474 @@
+<% title = badge ? 'Edit Badge' : 'Create Badge' %>
+
+<div class="admin-page">
+    <div class="admin-header">
+        <h1>
+            <i class="fas <%= badge ? 'fa-edit' : 'fa-plus' %>"></i>
+            <%= badge ? 'Edit Badge' : 'Create New Badge' %>
+        </h1>
+        <a href="/admin/badges" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Badges
+        </a>
+    </div>
+
+    <% if (errors.length > 0) { %>
+    <div class="alert alert-error">
+        <ul>
+            <% errors.forEach(error => { %>
+            <li><%= error.msg %></li>
+            <% }) %>
+        </ul>
+    </div>
+    <% } %>
+
+    <form action="<%= badge ? `/admin/badges/${badge.id}/edit` : '/admin/badges/create' %>" method="POST" class="badge-form">
+        <div class="form-grid">
+            <!-- Left Column -->
+            <div class="form-column">
+                <div class="form-section">
+                    <h3>Basic Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="name">Badge Name *</label>
+                        <input type="text" id="name" name="name" class="form-control" 
+                               value="<%= badge?.name || '' %>" required
+                               placeholder="e.g., First Blood">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description *</label>
+                        <textarea id="description" name="description" class="form-control" rows="3" required
+                                  placeholder="Describe what this badge is for..."><%= badge?.description || '' %></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="icon">Icon (Emoji) *</label>
+                        <div class="icon-input-wrapper">
+                            <input type="text" id="icon" name="icon" class="form-control icon-input" 
+                                   value="<%= badge?.icon || '🏆' %>" required
+                                   maxlength="10">
+                            <div class="icon-preview" id="iconPreview"><%= badge?.icon || '🏆' %></div>
+                        </div>
+                        <span class="form-help">Use an emoji or short text (10 chars max)</span>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Category & Rarity</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category">Category *</label>
+                            <select id="category" name="category" class="form-control" required>
+                                <option value="skill" <%= badge?.category === 'skill' ? 'selected' : '' %>>🎯 Skill</option>
+                                <option value="achievement" <%= badge?.category === 'achievement' ? 'selected' : '' %>>🏆 Achievement</option>
+                                <option value="activity" <%= badge?.category === 'activity' ? 'selected' : '' %>>🔥 Activity</option>
+                                <option value="special" <%= badge?.category === 'special' ? 'selected' : '' %>>✨ Special</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="rarity">Rarity *</label>
+                            <select id="rarity" name="rarity" class="form-control" required>
+                                <option value="common" <%= badge?.rarity === 'common' ? 'selected' : '' %>>Common</option>
+                                <option value="rare" <%= badge?.rarity === 'rare' ? 'selected' : '' %>>Rare</option>
+                                <option value="epic" <%= badge?.rarity === 'epic' ? 'selected' : '' %>>Epic</option>
+                                <option value="legendary" <%= badge?.rarity === 'legendary' ? 'selected' : '' %>>Legendary</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="form-column">
+                <div class="form-section">
+                    <h3>Criteria</h3>
+                    
+                    <div class="form-group">
+                        <label for="criteria_type">Criteria Type *</label>
+                        <select id="criteria_type" name="criteria_type" class="form-control" required>
+                            <optgroup label="Reports">
+                                <option value="first_report" <%= badge?.criteria_type === 'first_report' ? 'selected' : '' %>>First Report</option>
+                                <option value="resolved_reports" <%= badge?.criteria_type === 'resolved_reports' ? 'selected' : '' %>>Resolved Reports</option>
+                                <option value="critical_reports" <%= badge?.criteria_type === 'critical_reports' ? 'selected' : '' %>>Critical Reports</option>
+                                <option value="high_reports" <%= badge?.criteria_type === 'high_reports' ? 'selected' : '' %>>High Reports</option>
+                                <option value="web_vulns" <%= badge?.criteria_type === 'web_vulns' ? 'selected' : '' %>>Web Vulnerabilities</option>
+                                <option value="api_vulns" <%= badge?.criteria_type === 'api_vulns' ? 'selected' : '' %>>API Vulnerabilities</option>
+                                <option value="mobile_vulns" <%= badge?.criteria_type === 'mobile_vulns' ? 'selected' : '' %>>Mobile Vulnerabilities</option>
+                                <option value="blockchain_vulns" <%= badge?.criteria_type === 'blockchain_vulns' ? 'selected' : '' %>>Blockchain Vulnerabilities</option>
+                            </optgroup>
+                            <optgroup label="Reputation">
+                                <option value="reputation" <%= badge?.criteria_type === 'reputation' ? 'selected' : '' %>>Reputation Points</option>
+                            </optgroup>
+                            <optgroup label="Streaks">
+                                <option value="daily_streak" <%= badge?.criteria_type === 'daily_streak' ? 'selected' : '' %>>Daily Streak</option>
+                                <option value="activity_streak" <%= badge?.criteria_type === 'activity_streak' ? 'selected' : '' %>>Activity Streak</option>
+                            </optgroup>
+                            <optgroup label="Special">
+                                <option value="leaderboard_top10" <%= badge?.criteria_type === 'leaderboard_top10' ? 'selected' : '' %>>Top 10 Leaderboard</option>
+                                <option value="perfect_cvss" <%= badge?.criteria_type === 'perfect_cvss' ? 'selected' : '' %>>Perfect CVSS Score</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="criteria_count">Required Count *</label>
+                        <input type="number" id="criteria_count" name="criteria_count" class="form-control" 
+                               value="<%= badge?.criteria_count || 1 %>" required min="1"
+                               placeholder="e.g., 10">
+                        <span class="form-help">How many times must the criteria be met</span>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Rewards</h3>
+                    
+                    <div class="form-group">
+                        <label for="points_reward">Points Reward *</label>
+                        <input type="number" id="points_reward" name="points_reward" class="form-control" 
+                               value="<%= badge?.points_reward || 0 %>" required min="0"
+                               placeholder="e.g., 100">
+                        <span class="form-help">Reputation points awarded when badge is earned</span>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Appearance</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="color">Primary Color</label>
+                            <input type="color" id="color" name="color" class="form-control color-input" 
+                                   value="<%= badge?.color || '#7c3aed' %>">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gradient_start">Gradient Start</label>
+                            <input type="color" id="gradient_start" name="gradient_start" class="form-control color-input" 
+                                   value="<%= badge?.gradient_start || '#7c3aed' %>">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gradient_end">Gradient End</label>
+                            <input type="color" id="gradient_end" name="gradient_end" class="form-control color-input" 
+                                   value="<%= badge?.gradient_end || '#06b6d4' %>">
+                        </div>
+                    </div>
+
+                    <div class="badge-preview-card" id="badgePreview">
+                        <div class="preview-icon" id="previewIcon"><%= badge?.icon || '🏆' %></div>
+                        <div class="preview-name" id="previewName"><%= badge?.name || 'Badge Preview' %></div>
+                        <div class="preview-description"><%= badge?.description || 'Description goes here' %></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section form-section-inline">
+            <label class="checkbox-label">
+                <input type="checkbox" name="is_active" <%= badge?.is_active !== false ? 'checked' : '' %>>
+                Active (visible to users)
+            </label>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas <%= badge ? 'fa-save' : 'fa-plus' %>"></i>
+                <%= badge ? 'Save Changes' : 'Create Badge' %>
+            </button>
+            <a href="/admin/badges" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.admin-page {
+    padding: var(--space-xl);
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-header h1 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.badge-form {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2xl);
+    margin-bottom: var(--space-xl);
+}
+
+.form-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+}
+
+.form-section {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+}
+
+.form-section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: var(--space-md);
+    color: var(--text-primary);
+}
+
+.form-section-inline {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+}
+
+.form-group {
+    margin-bottom: var(--space-md);
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-xs);
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--hp-purple);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+select.form-control {
+    cursor: pointer;
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-help {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: var(--space-xs);
+}
+
+/* Icon Input */
+.icon-input-wrapper {
+    position: relative;
+}
+
+.icon-input {
+    padding-right: 60px;
+}
+
+.icon-preview {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius);
+}
+
+/* Color Input */
+.color-input {
+    height: 44px;
+    cursor: pointer;
+    padding: 4px;
+}
+
+/* Checkbox */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    cursor: pointer;
+    font-size: 0.9375rem;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+/* Badge Preview */
+.badge-preview-card {
+    background: var(--bg-card);
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    text-align: center;
+    margin-top: var(--space-md);
+}
+
+.preview-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--preview-start, #7c3aed) 0%, var(--preview-end, #06b6d4) 100%);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--space-md);
+    font-size: 2rem;
+}
+
+.preview-name {
+    font-weight: 700;
+    font-size: 1.125rem;
+    margin-bottom: var(--space-xs);
+}
+
+.preview-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: var(--space-md);
+    padding-top: var(--space-xl);
+    border-top: 1px solid var(--border-color);
+}
+
+.form-actions .btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.btn-lg {
+    padding: 14px 28px;
+    font-size: 1rem;
+}
+
+/* Alert */
+.alert {
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius);
+    margin-bottom: var(--space-lg);
+}
+
+.alert-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--error);
+}
+
+.alert ul {
+    margin: 0;
+    padding-left: var(--space-lg);
+}
+
+.alert li {
+    margin-bottom: var(--space-xs);
+}
+
+.alert li:last-child {
+    margin-bottom: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+// Live preview updates
+document.getElementById('name').addEventListener('input', function() {
+    document.getElementById('previewName').textContent = this.value || 'Badge Preview';
+});
+
+document.getElementById('description').addEventListener('input', function() {
+    document.getElementById('previewDescription').textContent = this.value || 'Description goes here';
+});
+
+document.getElementById('icon').addEventListener('input', function() {
+    document.getElementById('iconPreview').textContent = this.value || '🏆';
+    document.getElementById('previewIcon').textContent = this.value || '🏆';
+});
+
+document.getElementById('gradient_start').addEventListener('input', updatePreviewColors);
+document.getElementById('gradient_end').addEventListener('input', updatePreviewColors);
+
+function updatePreviewColors() {
+    const start = document.getElementById('gradient_start').value;
+    const end = document.getElementById('gradient_end').value;
+    const previewIcon = document.getElementById('previewIcon');
+    previewIcon.style.background = `linear-gradient(135deg, ${start} 0%, ${end} 100%)`;
+}
+
+// Initialize preview colors
+updatePreviewColors();
+</script>
