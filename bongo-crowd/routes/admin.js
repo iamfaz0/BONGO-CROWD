@@ -773,4 +773,83 @@ router.post('/companies/:id/reject', ensureAuthenticated, ensureAdmin, async (re
     }
 });
 
+// Admin Payments Dashboard
+router.get('/payments', ensureAuthenticated, ensureAdmin, async (req, res) => {
+    try {
+        // Get all payments with user info
+        const paymentsResult = await db.query(`
+            SELECT p.*, u.email as user_email, u.display_name as user_name
+            FROM payments p
+            LEFT JOIN users u ON p.user_id = u.id
+            ORDER BY p.created_at DESC
+            LIMIT 100
+        `);
+        
+        // Calculate stats
+        const statsResult = await db.query(`
+            SELECT 
+                COUNT(*) as total,
+                COUNT(*) FILTER (WHERE status = 'completed') as completed,
+                COUNT(*) FILTER (WHERE status = 'pending') as pending,
+                COUNT(*) FILTER (WHERE status = 'failed') as failed,
+                COALESCE(SUM(amount) FILTER (WHERE status = 'completed'), 0) as total_amount
+            FROM payments
+        `);
+        
+        const stats = statsResult.rows[0];
+        
+        res.render('admin/payments', {
+            title: 'Payment Management - Admin',
+            payments: paymentsResult.rows,
+            stats: {
+                total: parseInt(stats.total) || 0,
+                completed: parseInt(stats.completed) || 0,
+                pending: parseInt(stats.pending) || 0,
+                failed: parseInt(stats.failed) || 0,
+                totalAmount: parseInt(stats.total_amount) || 0
+            }
+        });
+    } catch (err) {
+        console.error('Admin payments error:', err);
+        req.flash('error', 'Failed to load payments');
+        res.redirect('/admin/dashboard');
+    }
+});
+
+// Complete payment (admin action)
+router.post('/payments/:id/complete', ensureAuthenticated, ensureAdmin, async (req, res) => {
+    try {
+        await db.query(`
+            UPDATE payments 
+            SET status = 'completed', updated_at = CURRENT_TIMESTAMP
+            WHERE id = $1
+        `, [req.params.id]);
+        
+        req.flash('success', 'Payment marked as completed');
+        res.redirect('/admin/payments');
+    } catch (err) {
+        console.error(err);
+        req.flash('error', 'Failed to complete payment');
+        res.redirect('/admin/payments');
+    }
+});
+
+// Cancel payment (admin action)
+router.post('/payments/:id/cancel', ensureAuthenticated, ensureAdmin, async (req, res) => {
+    try {
+        await db.query(`
+            UPDATE payments 
+            SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
+            WHERE id = $1
+        `, [req.params.id]);
+        
+        req.flash('success', 'Payment cancelled');
+        res.redirect('/admin/payments');
+    } catch (err) {
+        console.error(err);
+        req.flash('error', 'Failed to cancel payment');
+        res.redirect('/admin/payments');
+    }
+});
+
 module.exports = router;

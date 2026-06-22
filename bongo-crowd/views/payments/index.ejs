@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #7c3aed, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: #94a3b8;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat-card {
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #7c3aed;
+        }
+        
+        .stat-card .label {
+            color: #94a3b8;
+            margin-top: 0.5rem;
+        }
+        
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .action-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+        
+        .action-card h3 {
+            margin-bottom: 1rem;
+            color: #7c3aed;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, #7c3aed, #06b6d4);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .payments-table {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .payments-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .payments-table th,
+        .payments-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .payments-table th {
+            background: rgba(124, 58, 237, 0.2);
+            color: #7c3aed;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status-completed {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+        
+        .status-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+        
+        .status-failed {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: #06b6d4;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .notice {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            color: #fbbf24;
+        }
+        
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #ef4444;
+        }
+        
+        .success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #22c55e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+        
+        <div class="header">
+            <h1>💰 M-Pesa Payments</h1>
+            <p>Manage your bounty payments and withdrawals</p>
+        </div>
+        
+        <% if (success && success.length > 0) { %>
+            <div class="success"><%= success %></div>
+        <% } %>
+        
+        <% if (error && error.length > 0) { %>
+            <div class="error"><%= error %></div>
+        <% } %>
+        
+        <% if (!mpesaEnabled) { %>
+            <div class="notice">
+                ⚠️ M-Pesa payments are currently in test mode. Please contact admin to enable production payments.
+            </div>
+        <% } %>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="value"><%= (balance / 1000).toFixed(0) %>K</div>
+                <div class="label">Available Balance (TZS)</div>
+            </div>
+            <div class="stat-card">
+                <div class="value"><%= payments.filter(p => p.status === 'completed').length %></div>
+                <div class="label">Completed Transactions</div>
+            </div>
+            <div class="stat-card">
+                <div class="value"><%= payments.filter(p => p.status === 'pending').length %></div>
+                <div class="label">Pending Transactions</div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <div class="action-card">
+                <h3>📤 Withdraw to M-Pesa</h3>
+                <p style="color: #94a3b8; margin-bottom: 1rem;">Withdraw your bounty earnings to your M-Pesa wallet</p>
+                <form id="withdrawForm">
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" name="phoneNumber" placeholder="07XXXXXXXX or +2557XXXXXXXX" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount (TZS)</label>
+                        <input type="number" name="amount" min="1000" placeholder="Minimum 1,000 TZS" required>
+                    </div>
+                    <button type="submit" class="btn">Withdraw Now</button>
+                </form>
+            </div>
+            
+            <div class="action-card">
+                <h3>ℹ️ Payment Info</h3>
+                <p style="color: #94a3b8; margin-bottom: 1rem;">How M-Pesa payments work</p>
+                <ul style="color: #cbd5e1; line-height: 2;">
+                    <li>✓ Minimum withdrawal: 1,000 TZS</li>
+                    <li>✓ Processing time: 1-5 minutes</li>
+                    <li>✓ No withdrawal fees</li>
+                    <li>✓ Secure M-Pesa integration</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2 style="margin-bottom: 1.5rem; color: #e2e8f0;">📋 Transaction History</h2>
+        
+        <div class="payments-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Amount (TZS)</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Reference</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (payments && payments.length > 0) { %>
+                        <% payments.forEach(payment => { %>
+                            <tr>
+                                <td><%= new Date(payment.created_at).toLocaleDateString() %></td>
+                                <td><%= payment.type %></td>
+                                <td><%= payment.amount.toLocaleString() %></td>
+                                <td><%= payment.phone_number %></td>
+                                <td>
+                                    <span class="status-badge status-<%= payment.status %>">
+                                        <%= payment.status %>
+                                    </span>
+                                </td>
+                                <td><%= payment.reference || 'N/A' %></td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: #94a3b8; padding: 2rem;">
+                                No transactions yet. Start by submitting bug reports!
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/payments/withdraw', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(result.message);
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (err) {
+                alert('Failed to process withdrawal. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>
