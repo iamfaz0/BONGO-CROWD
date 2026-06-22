@@ -212,7 +212,7 @@
         <a href="/dashboard" class="back-link">← Back to Dashboard</a>
         
         <div class="header">
-            <h1>💰 M-Pesa Payments</h1>
+            <h1>💰 FastLipa Payments</h1>
             <p>Manage your bounty payments and withdrawals</p>
         </div>
         
@@ -224,9 +224,9 @@
             <div class="error"><%= error %></div>
         <% } %>
         
-        <% if (!mpesaEnabled) { %>
+        <% if (!fastlipaEnabled) { %>
             <div class="notice">
-                ⚠️ M-Pesa payments are currently in test mode. Please contact admin to enable production payments.
+                ⚠️ FastLipa payments are currently in test mode. Please contact admin to enable production payments.
             </div>
         <% } %>
         
@@ -247,8 +247,8 @@
         
         <div class="actions">
             <div class="action-card">
-                <h3>📤 Withdraw to M-Pesa</h3>
-                <p style="color: #94a3b8; margin-bottom: 1rem;">Withdraw your bounty earnings to your M-Pesa wallet</p>
+                <h3>📤 Withdraw to FastLipa</h3>
+                <p style="color: #94a3b8; margin-bottom: 1rem;">Withdraw your bounty earnings to your M-Pesa or Airtel Money wallet</p>
                 <form id="withdrawForm">
                     <div class="form-group">
                         <label>Phone Number</label>
@@ -264,12 +264,13 @@
             
             <div class="action-card">
                 <h3>ℹ️ Payment Info</h3>
-                <p style="color: #94a3b8; margin-bottom: 1rem;">How M-Pesa payments work</p>
+                <p style="color: #94a3b8; margin-bottom: 1rem;">How FastLipa payments work</p>
                 <ul style="color: #cbd5e1; line-height: 2;">
                     <li>✓ Minimum withdrawal: 1,000 TZS</li>
-                    <li>✓ Processing time: 1-5 minutes</li>
+                    <li>✓ Processing time: Instant</li>
                     <li>✓ No withdrawal fees</li>
-                    <li>✓ Secure M-Pesa integration</li>
+                    <li>✓ Secure FastLipa integration</li>
+                    <li>✓ Supports M-Pesa & Airtel Money</li>
                 </ul>
             </div>
         </div>

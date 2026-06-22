@@ -3,11 +3,11 @@ const router = express.Router();
 const { ensureAuthenticated } = require('../middleware/auth');
 const db = require('../config/database');
 const { 
-    initiateB2CPayment, 
-    initiateC2BPayment, 
+    initiatePayout, 
+    initiatePayment, 
     checkTransactionStatus,
-    handlePaymentCallback 
-} = require('../config/payments/mpesa');
+    handleWebhook 
+} = require('../config/payments/fastlipa');
 
 // Payment page
 router.get('/', ensureAuthenticated, async (req, res) => {
@@ -31,7 +31,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
             title: 'Payments - BONGO-CROWD',
             payments: paymentsResult.rows,
             balance: balanceResult.rows[0]?.balance || 0,
-            mpesaEnabled: !!process.env.MPESA_API_KEY
+            fastlipaEnabled: !!process.env.FASTLIPA_API_KEY
         });
     } catch (err) {
         console.error('Payments error:', err);
@@ -93,26 +93,26 @@ router.post('/payments/withdraw', ensureAuthenticated, async (req, res) => {
         
         const paymentId = paymentResult.rows[0].id;
         
-        // Initiate M-Pesa payment
-        const mpesaResult = await initiateB2CPayment(
+        // Initiate FastLipa payout
+        const fastlipaResult = await initiatePayout(
             phoneNumber,
             amount,
             `BONGO_WDW_${paymentId}`,
             `Bounty withdrawal for ${req.user.username}`
         );
         
-        if (mpesaResult.success) {
+        if (fastlipaResult.success) {
             // Update payment with transaction ID
             await db.query(`
                 UPDATE payments 
                 SET transaction_id = $1, status = 'processing'
                 WHERE id = $2
-            `, [mpesaResult.transactionId, paymentId]);
+            `, [fastlipaResult.transactionId, paymentId]);
             
             res.json({ 
                 success: true, 
-                message: 'Withdrawal initiated. You will receive M-Pesa confirmation shortly.',
-                transactionId: mpesaResult.transactionId
+                message: 'Withdrawal initiated. You will receive confirmation shortly.',
+                transactionId: fastlipaResult.transactionId
             });
         } else {
             // Mark as failed
@@ -120,10 +120,10 @@ router.post('/payments/withdraw', ensureAuthenticated, async (req, res) => {
                 UPDATE payments 
                 SET status = 'failed', error_message = $1
                 WHERE id = $2
-            `, [mpesaResult.error, paymentId]);
+            `, [fastlipaResult.error, paymentId]);
             
             res.status(500).json({ 
-                error: 'M-Pesa payment failed: ' + mpesaResult.error 
+                error: 'Payment failed: ' + fastlipaResult.error 
             });
         }
     } catch (err) {
@@ -166,34 +166,34 @@ router.post('/payments/deposit', ensureAuthenticated, async (req, res) => {
         
         const paymentId = paymentResult.rows[0].id;
         
-        // Initiate C2B payment (customer pays to business)
-        const mpesaResult = await initiateC2BPayment(
+        // Initiate FastLipa payment (customer pays)
+        const fastlipaResult = await initiatePayment(
             phoneNumber,
             amount,
             `BONGO_DEP_${paymentId}`,
             `Deposit for ${companyResult.rows[0].name}`
         );
         
-        if (mpesaResult.success) {
+        if (fastlipaResult.success) {
             await db.query(`
                 UPDATE payments 
                 SET transaction_id = $1, status = 'processing'
                 WHERE id = $2
-            `, [mpesaResult.transactionId, paymentId]);
+            `, [fastlipaResult.transactionId, paymentId]);
             
             res.json({ 
                 success: true, 
                 message: 'Please complete payment on your phone',
-                transactionId: mpesaResult.transactionId
+                transactionId: fastlipaResult.transactionId
             });
         } else {
             await db.query(`
                 UPDATE payments 
                 SET status = 'failed', error_message = $1
                 WHERE id = $2
-            `, [mpesaResult.error, paymentId]);
+            `, [fastlipaResult.error, paymentId]);
             
-            res.status(500).json({ error: mpesaResult.error });
+            res.status(500).json({ error: fastlipaResult.error });
         }
     } catch (err) {
         console.error('Deposit error:', err);
@@ -211,9 +211,9 @@ router.get('/payments/status/:transactionId', ensureAuthenticated, async (req, r
     }
 });
 
-// M-Pesa webhook callback
-router.post('/payments/webhook/mpesa', (req, res) => {
-    handlePaymentCallback(req, res);
+// FastLipa webhook callback
+router.post('/payments/webhook/fastlipa', (req, res) => {
+    handleWebhook(req, res);
 });
 
 // Payment history API
