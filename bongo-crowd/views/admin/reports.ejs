@@ -86,7 +86,7 @@
                             <% } %>
                         </td>
                         <td>
-                            <button onclick="toggleEdit(<%= report.id %>)" class="btn btn-sm btn-secondary">Edit</button>
+                            <a href="/admin/reports/<%= report.report_id %>" class="btn btn-sm btn-primary">Review</a>
                         </td>
                     </tr>
                     <tr id="edit-row-<%= report.id %>" style="display: none;">

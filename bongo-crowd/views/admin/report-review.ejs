@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background: rgba(124, 58, 237, 0.1);
+            border-right: 1px solid rgba(124, 58, 237, 0.3);
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 2rem 0;
+        }
+        
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        .sidebar-header h2 {
+            color: #7c3aed;
+            font-size: 1.5rem;
+        }
+        
+        .nav-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(124, 58, 237, 0.2);
+            color: #7c3aed;
+        }
+        
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #7c3aed, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .report-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .report-title {
+            font-size: 1.5rem;
+            color: #e2e8f0;
+            margin-bottom: 0.5rem;
+        }
+        
+        .report-meta {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status-pending { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .status-under_review { background: rgba(6, 182, 212, 0.2); color: #06b6d4; }
+        .status-accepted { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .status-rejected { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .status-resolved { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+        
+        .report-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .info-section h3 {
+            color: #7c3aed;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .info-section p, .info-section div {
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 0.75rem;
+        }
+        
+        .severity-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .severity-critical { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .severity-high { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+        .severity-medium { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .severity-low { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .bounty-form {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .bounty-form h4 {
+            color: #22c55e;
+            margin-bottom: 1rem;
+        }
+        
+        .comments-section {
+            margin-top: 2rem;
+        }
+        
+        .comment {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+        
+        .comment-content {
+            color: #e2e8f0;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; }
+        .alert-error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; }
+        
+        .cvss-score {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #7c3aed;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            color: #94a3b8;
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .tab:hover, .tab.active {
+            color: #7c3aed;
+            border-bottom-color: #7c3aed;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>◈ Admin</h2>
+        </div>
+        <nav>
+            <a href="/admin/dashboard" class="nav-item">Dashboard</a>
+            <a href="/admin/users" class="nav-item">Users</a>
+            <a href="/admin/companies" class="nav-item">Companies</a>
+            <a href="/admin/programs" class="nav-item">Programs</a>
+            <a href="/admin/reports" class="nav-item active">📋 Reports</a>
+            <a href="/admin/payments" class="nav-item">💰 Payments</a>
+            <a href="/admin/settings" class="nav-item">Settings</a>
+        </nav>
+    </div>
+    
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <h1>📋 Report Review</h1>
+                <p style="color: #94a3b8;">ID: <%= report.id %> | Submitted: <%= new Date(report.created_at).toLocaleString() %></p>
+            </div>
+            <a href="/admin/reports" class="btn btn-secondary">← Back to Reports</a>
+        </div>
+        
+        <% if (success && success.length > 0) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        
+        <% if (error && error.length > 0) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+        
+        <div class="report-card">
+            <div class="report-header">
+                <div>
+                    <h2 class="report-title"><%= report.title %></h2>
+                    <p class="report-meta">
+                        Program: <strong><%= report.program_name %></strong> | 
+                        Reporter: <strong><%= report.reporter_name %></strong>
+                    </p>
+                </div>
+                <div>
+                    <span class="status-badge status-<%= report.status %>"><%= report.status.replace('_', ' ').toUpperCase() %></span>
+                </div>
+            </div>
+            
+            <div class="report-content">
+                <div class="info-section">
+                    <h3>🐛 Vulnerability Details</h3>
+                    
+                    <p><strong>Severity:</strong> 
+                        <span class="severity-badge severity-<%= report.severity || 'medium' %>">
+                            <%= (report.severity || 'medium').toUpperCase() %>
+                        </span>
+                    </p>
+                    
+                    <p><strong>CVSS Score:</strong> <span class="cvss-score"><%= report.cvss_score || 'N/A' %></span></p>
+                    
+                    <p><strong>Description:</strong></p>
+                    <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                        <%= report.description %>
+                    </div>
+                    
+                    <p><strong>Steps to Reproduce:</strong></p>
+                    <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                        <%= report.steps_to_reproduce || 'Not provided' %>
+                    </div>
+                    
+                    <p><strong>Impact:</strong></p>
+                    <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                        <%= report.impact || 'Not provided' %>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h3>💰 Bounty Decision</h3>
+                    
+                    <% if (report.status === 'accepted') { %>
+                        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 1.5rem; border-radius: 12px;">
+                            <p><strong style="color: #22c55e;">✅ ACCEPTED</strong></p>
+                            <p><strong>Bounty Awarded:</strong> <span style="font-size: 1.5rem; color: #22c55e;"><%= report.bounty_amount ? report.bounty_amount.toLocaleString() : 0 %> TZS</span></p>
+                            <p><strong>Reviewed By:</strong> <%= report.reviewer_name %></p>
+                            <p><strong>Reviewed At:</strong> <%= new Date(report.reviewed_at).toLocaleString() %></p>
+                            <% if (report.admin_notes) { %>
+                                <p><strong>Notes:</strong></p>
+                                <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;"><%= report.admin_notes %></div>
+                            <% } %>
+                        </div>
+                    <% } else if (report.status === 'rejected' || report.status === 'duplicate' || report.status === 'informative') { %>
+                        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 1.5rem; border-radius: 12px;">
+                            <p><strong style="color: #ef4444;">❌ <%= report.status.toUpperCase() %></strong></p>
+                            <p><strong>Reviewed By:</strong> <%= report.reviewer_name %></p>
+                            <% if (report.admin_notes) { %>
+                                <p><strong>Reason:</strong></p>
+                                <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;"><%= report.admin_notes %></div>
+                            <% } %>
+                        </div>
+                    <% } else { %>
+                        
+                        <!-- Award Bounty Form -->
+                        <form action="/admin/reports/<%= report.id %>/award" method="POST" class="bounty-form">
+                            <h4>✅ Accept & Award Bounty</h4>
+                            
+                            <div class="form-group">
+                                <label>Bounty Amount (TZS)</label>
+                                <input type="number" name="bounty_amount" min="1000" required placeholder="e.g. 50000">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Severity</label>
+                                <select name="severity" required>
+                                    <option value="critical">Critical</option>
+                                    <option value="high">High</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>CVSS Score (0.0 - 10.0)</label>
+                                <input type="number" name="cvss_score" min="0" max="10" step="0.1" placeholder="e.g. 7.5">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Admin Notes</label>
+                                <textarea name="admin_notes" placeholder="Add notes about the vulnerability and bounty decision..."></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success">Accept & Award Bounty</button>
+                        </form>
+                        
+                        <hr style="margin: 2rem 0; border-color: rgba(255,255,255,0.1);">
+                        
+                        <!-- Reject Form -->
+                        <form action="/admin/reports/<%= report.id %>/reject" method="POST">
+                            <h4 style="color: #ef4444; margin-bottom: 1rem;">❌ Reject Report</h4>
+                            
+                            <div class="form-group">
+                                <label>Rejection Reason</label>
+                                <select name="rejection_type" required>
+                                    <option value="rejected">Not Vulnerable</option>
+                                    <option value="duplicate">Duplicate</option>
+                                    <option value="informative">Informative (Not a Bug)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Explanation</label>
+                                <textarea name="reason" required placeholder="Explain why this report is being rejected..."></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-danger">Reject Report</button>
+                        </form>
+                        
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Comments Section -->
+        <div class="report-card">
+            <h3>💬 Comments</h3>
+            
+            <div class="comments-section">
+                <% if (comments && comments.length > 0) { %>
+                    <% comments.forEach(comment => { %>
+                        <div class="comment">
+                            <div class="comment-header">
+                                <span><strong><%= comment.user_name %></strong> <%= comment.is_internal ? '(Admin Only)' : '' %></span>
+                                <span><%= new Date(comment.created_at).toLocaleString() %></span>
+                            </div>
+                            <div class="comment-content"><%= comment.content %></div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p style="color: #94a3b8;">No comments yet.</p>
+                <% } %>
+            </div>
+            
+            <form action="/admin/reports/<%= report.id %>/comment" method="POST" style="margin-top: 1.5rem;">
+                <div class="form-group">
+                    <label>Add Comment</label>
+                    <textarea name="content" required placeholder="Communicate with the researcher..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="is_internal" value="true">
+                        Internal (Admin Only)
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-secondary">Post Comment</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

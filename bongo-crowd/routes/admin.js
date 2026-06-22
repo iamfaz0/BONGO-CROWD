@@ -852,4 +852,184 @@ router.post('/payments/:id/cancel', ensureAuthenticated, ensureAdmin, async (req
     }
 });
 
+// Report Review - View single report
+router.get('/reports/:id', ensureAuthenticated, ensureAdmin, async (req, res) => {
+    try {
+        // Get report with details
+        const reportResult = await db.query(`
+            SELECT r.*, 
+                   p.name as program_name,
+                   u.username as reporter_name,
+                   u.email as reporter_email,
+                   reviewer.username as reviewer_name
+            FROM reports r
+            LEFT JOIN programs p ON r.program_id = p.id
+            LEFT JOIN users u ON r.reporter_id = u.id
+            LEFT JOIN users reviewer ON r.reviewed_by = reviewer.id
+            WHERE r.id = $1
+        `, [req.params.id]);
+        
+        if (reportResult.rows.length === 0) {
+            req.flash('error', 'Report not found');
+            return res.redirect('/admin/reports');
+        }
+        
+        // Get comments
+        const commentsResult = await db.query(`
+            SELECT c.*, u.username as user_name
+            FROM report_comments c
+            JOIN users u ON c.user_id = u.id
+            WHERE c.report_id = $1
+            ORDER BY c.created_at ASC
+        `, [req.params.id]);
+        
+        res.render('admin/report-review', {
+            title: `Review Report - ${reportResult.rows[0].title}`,
+            report: reportResult.rows[0],
+            comments: commentsResult.rows
+        });
+    } catch (err) {
+        console.error('Report review error:', err);
+        req.flash('error', 'Failed to load report');
+        res.redirect('/admin/reports');
+    }
+});
+
+// Award bounty to report
+router.post('/reports/:id/award', ensureAuthenticated, ensureAdmin, async (req, res) => {
+    const { bounty_amount, severity, cvss_score, admin_notes } = req.body;
+    
+    try {
+        // Update report with bounty
+        await db.query(`
+            UPDATE reports 
+            SET status = 'accepted',
+                bounty_amount = $1,
+                bounty_currency = 'TZS',
+                severity = $2,
+                cvss_score = $3,
+                admin_notes = $4,
+                reviewed_by = $5,
+                reviewed_at = CURRENT_TIMESTAMP
+            WHERE id = $6
+        `, [bounty_amount, severity, cvss_score, admin_notes, req.user.id, req.params.id]);
+        
+        // Get report and user info
+        const reportResult = await db.query(`
+            SELECT r.*, u.id as user_id, u.email 
+            FROM reports r
+            JOIN users u ON r.reporter_id = u.id
+            WHERE r.id = $1
+        `, [req.params.id]);
+        
+        const report = reportResult.rows[0];
+        
+        // Create payment record
+        const paymentResult = await db.query(`
+            INSERT INTO payments (user_id, type, amount, reference, status, metadata)
+            VALUES ($1, 'withdrawal', $2, $3, 'pending', $4)
+            RETURNING id
+        `, [
+            report.user_id,
+            bounty_amount,
+            `BOUNTY_${req.params.id}`,
+            JSON.stringify({ report_id: req.params.id, report_title: report.title })
+        ]);
+        
+        // Update report with payment reference
+        await db.query(`
+            UPDATE reports SET payment_id = $1 WHERE id = $2
+        `, [paymentResult.rows[0].id, req.params.id]);
+        
+        // Update user wallet
+        await db.query(`
+            INSERT INTO user_wallets (user_id, total_earned)
+            VALUES ($1, $2)
+            ON CONFLICT (user_id) 
+            DO UPDATE SET 
+                total_earned = user_wallets.total_earned + $2,
+                updated_at = CURRENT_TIMESTAMP
+        `, [report.user_id, bounty_amount]);
+        
+        // Notify user
+        await db.query(`
+            INSERT INTO notifications (user_id, type, message, is_read, created_at)
+            VALUES ($1, 'bounty_awarded', $2, false, CURRENT_TIMESTAMP)
+        `, [
+            report.user_id,
+            `Your report "${report.title}" has been accepted! Bounty: ${bounty_amount} TZS`
+        ]);
+        
+        req.flash('success', `Bounty of ${bounty_amount} TZS awarded successfully!`);
+        res.redirect(`/admin/reports/${req.params.id}`);
+    } catch (err) {
+        console.error('Award bounty error:', err);
+        req.flash('error', 'Failed to award bounty: ' + err.message);
+        res.redirect(`/admin/reports/${req.params.id}`);
+    }
+});
+
+// Reject report
+router.post('/reports/:id/reject', ensureAuthenticated, ensureAdmin, async (req, res) => {
+    const { rejection_type, reason } = req.body;
+    
+    try {
+        await db.query(`
+            UPDATE reports 
+            SET status = $1,
+                admin_notes = $2,
+                reviewed_by = $3,
+                reviewed_at = CURRENT_TIMESTAMP
+            WHERE id = $4
+        `, [rejection_type, reason, req.user.id, req.params.id]);
+        
+        // Get reporter info for notification
+        const reportResult = await db.query(`
+            SELECT r.title, u.id as user_id 
+            FROM reports r
+            JOIN users u ON r.reporter_id = u.id
+            WHERE r.id = $1
+        `, [req.params.id]);
+        
+        if (reportResult.rows.length > 0) {
+            const report = reportResult.rows[0];
+            
+            // Notify user
+            await db.query(`
+                INSERT INTO notifications (user_id, type, message, is_read, created_at)
+                VALUES ($1, 'report_rejected', $2, false, CURRENT_TIMESTAMP)
+            `, [
+                report.user_id,
+                `Your report "${report.title}" was ${rejection_type}. Reason: ${reason}`
+            ]);
+        }
+        
+        req.flash('success', `Report ${rejection_type} successfully`);
+        res.redirect(`/admin/reports/${req.params.id}`);
+    } catch (err) {
+        console.error('Reject report error:', err);
+        req.flash('error', 'Failed to reject report');
+        res.redirect(`/admin/reports/${req.params.id}`);
+    }
+});
+
+// Add comment to report
+router.post('/reports/:id/comment', ensureAuthenticated, ensureAdmin, async (req, res) => {
+    const { content, is_internal } = req.body;
+    
+    try {
+        await db.query(`
+            INSERT INTO report_comments (report_id, user_id, content, is_internal, created_at)
+            VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+        `, [req.params.id, req.user.id, content, is_internal === 'true']);
+        
+        req.flash('success', 'Comment added');
+        res.redirect(`/admin/reports/${req.params.id}`);
+    } catch (err) {
+        console.error('Add comment error:', err);
+        req.flash('error', 'Failed to add comment');
+        res.redirect(`/admin/reports/${req.params.id}`);
+    }
+});
+
 module.exports = router;
