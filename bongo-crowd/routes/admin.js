@@ -869,7 +869,10 @@ router.get('/reports/:id', ensureAuthenticated, ensureAdmin, async (req, res) =>
             WHERE r.id = $1
         `, [req.params.id]);
         
+        console.log('Report query result:', reportResult.rows.length, 'rows');
+        
         if (reportResult.rows.length === 0) {
+            console.log('Report not found for ID:', req.params.id);
             req.flash('error', 'Report not found');
             return res.redirect('/admin/reports');
         }

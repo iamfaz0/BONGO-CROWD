@@ -1117,10 +1117,63 @@ a:hover {
     .nav-links,
     .nav-auth {
         display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-top: none;
+        flex-direction: column;
+        padding: 1rem;
+        z-index: 999;
+        gap: 0.5rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    .nav-links.active,
+    .nav-auth.active {
+        display: flex;
+    }
+    
+    .nav-links li,
+    .nav-links a {
+        width: 100%;
+        text-align: left;
+    }
+    
+    .nav-links a {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+    }
+    
+    .nav-links a:hover {
+        background: var(--bg-tertiary);
+    }
+    
+    .nav-auth {
+        position: static;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        margin-top: 1rem;
+        border-top: 1px solid var(--border-color);
+        padding-top: 1rem;
+    }
+    
+    .nav-auth .btn {
+        width: 100%;
+        text-align: center;
     }
     
     .nav-mobile-btn {
         display: block;
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
     }
     
     .hero-title {

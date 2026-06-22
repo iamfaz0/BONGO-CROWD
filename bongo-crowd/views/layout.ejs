@@ -149,8 +149,18 @@
 
     <script>
         // Mobile menu toggle
-        document.querySelector('.nav-mobile-btn')?.addEventListener('click', () => {
-            document.querySelector('.nav-links').classList.toggle('active');
+        document.querySelector('.nav-mobile-btn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelector('.nav-links')?.classList.toggle('active');
+            document.querySelector('.nav-auth')?.classList.toggle('active');
+        });
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.navbar')) {
+                document.querySelector('.nav-links')?.classList.remove('active');
+                document.querySelector('.nav-auth')?.classList.remove('active');
+            }
         });
 
         // Dropdown toggle
