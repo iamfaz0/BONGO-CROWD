@@ -112,6 +112,28 @@ app.use((req, res, next) => {
     next();
 });
 
+// Subdomain proxy - app.cyberhubtz.site
+const { createProxyMiddleware } = require('http-proxy-middleware');
+app.use((req, res, next) => {
+    const host = req.headers.host;
+    if (host && host.startsWith('app.')) {
+        // Proxy to app server on port 3001
+        const proxy = createProxyMiddleware({
+            target: 'http://localhost:3001',
+            changeOrigin: true,
+            pathRewrite: {
+                '^/': '/'
+            },
+            onError: (err, req, res) => {
+                console.error('Proxy error:', err.message);
+                res.status(502).send('App server is unavailable');
+            }
+        });
+        return proxy(req, res, next);
+    }
+    next();
+});
+
 // Routes - CSRF disabled for now
 app.use('/', require('./routes/index'));
 app.use('/auth', require('./routes/auth'));
