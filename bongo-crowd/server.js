@@ -143,6 +143,7 @@ app.use('/users', require('./routes/users'));
 app.use('/admin', require('./routes/admin'));
 app.use('/api', require('./routes/api'));
 app.use('/tools', require('./routes/tools'));
+app.use('/payments', require('./routes/payments')); // M-Pesa payments
 app.use('/', require('./routes/analytics')); // Analytics routes
 app.use('/companies', require('./routes/analytics')); // Company analytics
 app.use('/', require('./routes/badges')); // Badge and reputation routes
